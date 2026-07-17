@@ -6,6 +6,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Return Countdown">
+  <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="expires" content="0">
   <title>Return Countdown</title>
   <style>
     * {
@@ -64,7 +67,25 @@
       gap: 0.4rem;
       width: 100%;
       max-width: 55%;
-      margin: 0 auto;
+      margin: 2rem auto 0 auto;
+    }
+    
+    .title-box {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 10px;
+      padding: 0.8rem 0.5rem;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 0.2rem;
+    }
+    
+    .title-box h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #7fd900;
+      margin: 0;
+      letter-spacing: 1px;
     }
     
     .stats-row {
@@ -216,6 +237,9 @@
     <!-- Arizona Screen -->
     <div class="screen" id="screen1">
       <div class="content">
+        <div class="title-box">
+          <h1>BB Returns</h1>
+        </div>
         <div class="stats-row">
           <div class="stat-box">
             <div class="stat-icon">📅</div>
@@ -355,11 +379,11 @@
       const totalMs = countdown.end - countdown.start;
       const elapsedPct = (elapsedMs / totalMs) * 100;
       
-      document.getElementById('daysSinceAZ').textContent = daysSince;
+      document.getElementById('daysSinceAZ').textContent = daysSince.toFixed(1);
       document.getElementById('minutesSinceAZ').textContent = minutesSince.toLocaleString();
       document.getElementById('secondsSinceAZ').textContent = elapsedSeconds.toLocaleString();
       
-      document.getElementById('daysToAZ').textContent = daysTo;
+      document.getElementById('daysToAZ').textContent = daysTo.toFixed(1);
       document.getElementById('minutesToAZ').textContent = totalMinutesRemaining.toLocaleString();
       document.getElementById('secondsToAZ').textContent = totalSecondsRemaining.toLocaleString();
       
