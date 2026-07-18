@@ -308,10 +308,25 @@
   <script>
     let countdown = {
       start: new Date(2026, 5, 3, 8, 50, 0),
-      end: new Date(2026, 8, 21, 16, 0, 0)
+      end: new Date(2026, 8, 10, 19, 0, 0)  // Will be overwritten by config.json
     };
 
-    // Load saved end date from localStorage
+    // Load configuration from config.json
+    async function loadConfig() {
+      try {
+        const response = await fetch('./config.json');
+        const config = await response.json();
+        const [year, month, day] = config.returnDate.split('-');
+        const [hour, minute] = config.returnTime.split(':');
+        countdown.end = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));
+        updateArrivalDisplay();
+      } catch (error) {
+        console.error('Failed to load config:', error);
+        // Fallback to default date if config fails
+      }
+    }
+
+    // Load saved end date from localStorage (manual edits override config)
     function loadSavedDate() {
       const saved = localStorage.getItem('arrivalDateTime');
       if (saved) {
@@ -368,12 +383,12 @@
       
       const elapsedMs = now - countdown.start;
       const elapsedSeconds = Math.floor(elapsedMs / 1000);
-      const daysSince = Math.floor(elapsedSeconds / 86400);
+      const daysSince = elapsedSeconds / 86400;  // Decimal days
       const minutesSince = Math.floor(elapsedSeconds / 60);
       
       const remainingMs = countdown.end - now;
       const totalSecondsRemaining = Math.max(0, Math.floor(remainingMs / 1000));
-      const daysTo = Math.floor(totalSecondsRemaining / 86400);
+      const daysTo = totalSecondsRemaining / 86400;  // Decimal days
       const totalMinutesRemaining = Math.floor(totalSecondsRemaining / 60);
       
       const totalMs = countdown.end - countdown.start;
@@ -391,7 +406,8 @@
       document.getElementById('progressFillAZ').style.width = `${Math.max(0, Math.min(elapsedPct, 100))}%`;
     }
 
-    // Load saved date and start updates
+    // Load config first, then saved date (saved date overrides config)
+    loadConfig();
     loadSavedDate();
     updateScreen();
     setInterval(updateScreen, 100);
