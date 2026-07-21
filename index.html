@@ -192,6 +192,30 @@
       top: -80px;
     }
 
+    .floating-image.hidden {
+      display: none;
+    }
+
+    .toggle-photos-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      background: rgba(127, 217, 0, 0.9);
+      border: none;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #000;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .toggle-photos-btn:active {
+      opacity: 0.8;
+    }
+
     .floating-image img {
       width: 100%;
       height: 100%;
@@ -274,6 +298,7 @@
   </style>
 </head>
 <body>
+  <button class="toggle-photos-btn" id="togglePhotosBtn">Hide Photos</button>
   <div class="screen-container" id="screenContainer">
     <!-- Arizona Screen -->
     <div class="screen" id="screen1">
@@ -464,6 +489,31 @@
     loadSavedDate();
     updateScreen();
     setInterval(updateScreen, 100);
+
+    // Toggle photos visibility
+    const toggleBtn = document.getElementById('togglePhotosBtn');
+    let photosVisible = localStorage.getItem('photosVisible') !== 'false';
+    
+    function updatePhotosVisibility() {
+      const photos = document.querySelectorAll('.floating-image');
+      photos.forEach(photo => {
+        if (photosVisible) {
+          photo.classList.remove('hidden');
+        } else {
+          photo.classList.add('hidden');
+        }
+      });
+      toggleBtn.textContent = photosVisible ? 'Hide Photos' : 'Show Photos';
+      localStorage.setItem('photosVisible', photosVisible);
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      photosVisible = !photosVisible;
+      updatePhotosVisibility();
+    });
+
+    // Apply saved preference on load
+    updatePhotosVisibility();
   </script>
 </body>
 </html>
