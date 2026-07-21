@@ -197,19 +197,17 @@
     }
 
     .toggle-photos-btn {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 100;
       background: rgba(127, 217, 0, 0.9);
       border: none;
       border-radius: 20px;
-      padding: 8px 16px;
-      font-size: 12px;
+      padding: 10px 20px;
+      font-size: 13px;
       font-weight: 600;
       color: #000;
       cursor: pointer;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      margin-top: 1rem;
+      width: 100%;
     }
 
     .toggle-photos-btn:active {
@@ -226,8 +224,8 @@
     @keyframes float-path {
       0% { left: 5%; top: -80px; }
       5% { left: 5%; top: 10px; }
-      40% { left: 5%; top: calc(100% - 60px); }
-      60% { left: calc(100% - 60px); top: calc(100% - 60px); }
+      30% { left: 5%; top: calc(100% - 60px); }
+      75% { left: calc(100% - 60px); top: calc(100% - 60px); }
       100% { left: calc(100% - 60px); top: -80px; }
     }
 
@@ -298,7 +296,6 @@
   </style>
 </head>
 <body>
-  <button class="toggle-photos-btn" id="togglePhotosBtn">Hide Photos</button>
   <div class="screen-container" id="screenContainer">
     <!-- Arizona Screen -->
     <div class="screen" id="screen1">
@@ -379,6 +376,7 @@
             <div class="arrival-unit">secs</div>
           </div>
         </div>
+        <button class="toggle-photos-btn" id="togglePhotosBtn">Hide Photos</button>
       </div>
     </div>
   </div>
@@ -491,27 +489,29 @@
     setInterval(updateScreen, 100);
 
     // Toggle photos visibility
-    const toggleBtn = document.getElementById('togglePhotosBtn');
-    let photosVisible = localStorage.getItem('photosVisible') !== 'false';
-    
-    const updatePhotosVisibility = () => {
-      const photos = document.querySelectorAll('.floating-image');
-      if (photosVisible) {
-        photos.forEach(p => p.classList.remove('hidden'));
-        toggleBtn.textContent = 'Hide Photos';
-      } else {
-        photos.forEach(p => p.classList.add('hidden'));
-        toggleBtn.textContent = 'Show Photos';
-      }
-      localStorage.setItem('photosVisible', photosVisible);
-    };
+    window.addEventListener('DOMContentLoaded', () => {
+      const toggleBtn = document.getElementById('togglePhotosBtn');
+      if (!toggleBtn) return;
+      
+      let photosVisible = localStorage.getItem('photosVisible') !== 'false';
+      
+      const updatePhotosVisibility = () => {
+        const photos = document.querySelectorAll('.floating-image');
+        photos.forEach(p => {
+          p.classList.toggle('hidden', !photosVisible);
+        });
+        toggleBtn.textContent = photosVisible ? 'Hide Photos' : 'Show Photos';
+        localStorage.setItem('photosVisible', photosVisible);
+      };
 
-    toggleBtn.addEventListener('click', function() {
-      photosVisible = !photosVisible;
+      toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        photosVisible = !photosVisible;
+        updatePhotosVisibility();
+      });
+
       updatePhotosVisibility();
     });
-
-    updatePhotosVisibility();
   </script>
 </body>
 </html>
