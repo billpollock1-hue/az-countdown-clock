@@ -190,10 +190,13 @@
       overflow: hidden;
       left: 5%;
       top: -80px;
+      opacity: 1;
+      transition: opacity 0.2s ease;
     }
 
     .floating-image.hidden {
-      display: none;
+      opacity: 0;
+      pointer-events: none;
     }
 
     .toggle-photos-btn {
@@ -229,16 +232,16 @@
       100% { left: calc(100% - 60px); top: -80px; }
     }
 
-    .img-1 { animation: float-path 160s linear infinite; animation-delay: 0s; }
-    .img-2 { animation: float-path 160s linear infinite; animation-delay: 16s; }
-    .img-3 { animation: float-path 160s linear infinite; animation-delay: 32s; }
-    .img-4 { animation: float-path 160s linear infinite; animation-delay: 48s; }
-    .img-5 { animation: float-path 160s linear infinite; animation-delay: 64s; }
-    .img-6 { animation: float-path 160s linear infinite; animation-delay: 80s; }
-    .img-7 { animation: float-path 160s linear infinite; animation-delay: 96s; }
-    .img-8 { animation: float-path 160s linear infinite; animation-delay: 112s; }
-    .img-9 { animation: float-path 160s linear infinite; animation-delay: 128s; }
-    .img-10 { animation: float-path 160s linear infinite; animation-delay: 144s; }
+    .img-1 { animation: float-path 136s linear infinite; animation-delay: 0s; }
+    .img-2 { animation: float-path 136s linear infinite; animation-delay: 24s; }
+    .img-3 { animation: float-path 136s linear infinite; animation-delay: 48s; }
+    .img-4 { animation: float-path 136s linear infinite; animation-delay: 72s; }
+    .img-5 { animation: float-path 136s linear infinite; animation-delay: 96s; }
+    .img-6 { animation: float-path 136s linear infinite; animation-delay: 120s; }
+    .img-7 { animation: float-path 136s linear infinite; animation-delay: 144s; }
+    .img-8 { animation: float-path 136s linear infinite; animation-delay: 168s; }
+    .img-9 { animation: float-path 136s linear infinite; animation-delay: 192s; }
+    .img-10 { animation: float-path 136s linear infinite; animation-delay: 216s; }
     
     .arrival-section {
       display: grid;
