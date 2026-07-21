@@ -226,8 +226,8 @@
     @keyframes float-path {
       0% { left: 5%; top: -80px; }
       5% { left: 5%; top: 10px; }
-      30% { left: 5%; top: calc(100% - 60px); }
-      69% { left: calc(100% - 60px); top: calc(100% - 60px); }
+      28% { left: 5%; top: calc(100% - 60px); }
+      85% { left: calc(100% - 60px); top: calc(100% - 60px); }
       100% { left: calc(100% - 60px); top: -80px; }
     }
 
@@ -490,30 +490,32 @@
     updateScreen();
     setInterval(updateScreen, 100);
 
-    // Toggle photos visibility
-    const toggleBtn = document.getElementById('togglePhotosBtn');
-    let photosVisible = localStorage.getItem('photosVisible') !== 'false';
-    
-    function updatePhotosVisibility() {
-      const photos = document.querySelectorAll('.floating-image');
-      photos.forEach(photo => {
-        if (photosVisible) {
-          photo.classList.remove('hidden');
-        } else {
-          photo.classList.add('hidden');
-        }
+    // Toggle photos visibility (delay to ensure DOM is ready)
+    setTimeout(() => {
+      const toggleBtn = document.getElementById('togglePhotosBtn');
+      let photosVisible = localStorage.getItem('photosVisible') !== 'false';
+      
+      function updatePhotosVisibility() {
+        const photos = document.querySelectorAll('.floating-image');
+        photos.forEach(photo => {
+          if (photosVisible) {
+            photo.classList.remove('hidden');
+          } else {
+            photo.classList.add('hidden');
+          }
+        });
+        toggleBtn.textContent = photosVisible ? 'Hide Photos' : 'Show Photos';
+        localStorage.setItem('photosVisible', photosVisible);
+      }
+
+      toggleBtn.addEventListener('click', () => {
+        photosVisible = !photosVisible;
+        updatePhotosVisibility();
       });
-      toggleBtn.textContent = photosVisible ? 'Hide Photos' : 'Show Photos';
-      localStorage.setItem('photosVisible', photosVisible);
-    }
 
-    toggleBtn.addEventListener('click', () => {
-      photosVisible = !photosVisible;
+      // Apply saved preference on load
       updatePhotosVisibility();
-    });
-
-    // Apply saved preference on load
-    updatePhotosVisibility();
+    }, 100);
   </script>
 </body>
 </html>
