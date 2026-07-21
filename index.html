@@ -226,8 +226,8 @@
     @keyframes float-path {
       0% { left: 5%; top: -80px; }
       5% { left: 5%; top: 10px; }
-      28% { left: 5%; top: calc(100% - 60px); }
-      85% { left: calc(100% - 60px); top: calc(100% - 60px); }
+      40% { left: 5%; top: calc(100% - 60px); }
+      60% { left: calc(100% - 60px); top: calc(100% - 60px); }
       100% { left: calc(100% - 60px); top: -80px; }
     }
 
@@ -490,32 +490,28 @@
     updateScreen();
     setInterval(updateScreen, 100);
 
-    // Toggle photos visibility (delay to ensure DOM is ready)
-    setTimeout(() => {
-      const toggleBtn = document.getElementById('togglePhotosBtn');
-      let photosVisible = localStorage.getItem('photosVisible') !== 'false';
-      
-      function updatePhotosVisibility() {
-        const photos = document.querySelectorAll('.floating-image');
-        photos.forEach(photo => {
-          if (photosVisible) {
-            photo.classList.remove('hidden');
-          } else {
-            photo.classList.add('hidden');
-          }
-        });
-        toggleBtn.textContent = photosVisible ? 'Hide Photos' : 'Show Photos';
-        localStorage.setItem('photosVisible', photosVisible);
+    // Toggle photos visibility
+    const toggleBtn = document.getElementById('togglePhotosBtn');
+    let photosVisible = localStorage.getItem('photosVisible') !== 'false';
+    
+    const updatePhotosVisibility = () => {
+      const photos = document.querySelectorAll('.floating-image');
+      if (photosVisible) {
+        photos.forEach(p => p.classList.remove('hidden'));
+        toggleBtn.textContent = 'Hide Photos';
+      } else {
+        photos.forEach(p => p.classList.add('hidden'));
+        toggleBtn.textContent = 'Show Photos';
       }
+      localStorage.setItem('photosVisible', photosVisible);
+    };
 
-      toggleBtn.addEventListener('click', () => {
-        photosVisible = !photosVisible;
-        updatePhotosVisibility();
-      });
-
-      // Apply saved preference on load
+    toggleBtn.addEventListener('click', function() {
+      photosVisible = !photosVisible;
       updatePhotosVisibility();
-    }, 100);
+    });
+
+    updatePhotosVisibility();
   </script>
 </body>
 </html>
