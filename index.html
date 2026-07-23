@@ -554,6 +554,11 @@
         'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/18.jpg'
       ];
       
+      const photoFrequency = {};
+      photoUrls.forEach((url, i) => {
+        photoFrequency[(i + 1).toString().padStart(2, '0')] = 0;
+      });
+      
       // Shuffle URLs array
       for (let i = photoUrls.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -565,9 +570,15 @@
       photos.forEach((photo, index) => {
         const img = photo.querySelector('img');
         if (img && photoUrls[index]) {
+          const photoNum = photoUrls[index].match(/(\d{2})\.jpg/)[1];
           img.src = photoUrls[index];
+          photoFrequency[photoNum]++;
+          console.log(`Position ${(index + 1).toString().padStart(2, '0')}: Photo ${photoNum} (Frequency: ${photoFrequency[photoNum]})`);
         }
       });
+      
+      console.log('=== Photo Frequency Summary ===');
+      console.table(photoFrequency);
     });
   </script>
 </body>
