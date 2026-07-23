@@ -214,26 +214,26 @@
 
     .frequency-counter {
       position: fixed;
-      bottom: 80px;
-      right: 10px;
-      background: rgba(0, 0, 0, 0.8);
+      bottom: 100px;
+      right: 5px;
+      background: rgba(0, 0, 0, 0.85);
       color: #7fd900;
-      padding: 10px;
+      padding: 12px;
       border-radius: 8px;
-      font-size: 11px;
+      font-size: 12px;
       font-family: monospace;
-      max-width: 120px;
+      width: 140px;
       z-index: 50;
-      max-height: 200px;
+      max-height: 320px;
       overflow-y: auto;
-      border: 1px solid #7fd900;
+      border: 2px solid #7fd900;
     }
 
     .frequency-item {
       display: flex;
       justify-content: space-between;
-      padding: 2px 0;
-      border-bottom: 1px solid rgba(127, 217, 0, 0.3);
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(127, 217, 0, 0.2);
     }
 
     .floating-image img {
@@ -576,8 +576,11 @@
       ];
       
       const photoFrequency = {};
+      const photoMap = {}; // maps URL to photo number
       for (let i = 1; i <= 18; i++) {
-        photoFrequency[i.toString().padStart(2, '0')] = 0;
+        const num = i.toString().padStart(2, '0');
+        photoFrequency[num] = 0;
+        photoMap[`https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/${num}.jpg`] = num;
       }
       
       // Shuffle URLs array
@@ -586,25 +589,43 @@
         [photoUrls[i], photoUrls[j]] = [photoUrls[j], photoUrls[i]];
       }
       
-      // Apply shuffled URLs to photos in order (img-1 through img-18)
+      // Apply shuffled URLs to photos
       const photos = document.querySelectorAll('.floating-image');
+      const photoSlots = [];
       photos.forEach((photo, index) => {
         const img = photo.querySelector('img');
         if (img && photoUrls[index]) {
-          const photoNum = photoUrls[index].match(/(\d{2})\.jpg/)[1];
           img.src = photoUrls[index];
-          photoFrequency[photoNum]++;
-          console.log(`Position ${(index + 1).toString().padStart(2, '0')}: Photo ${photoNum}`);
+          const photoNum = photoMap[photoUrls[index]];
+          photoSlots.push(photoNum);
         }
       });
       
-      // Update frequency counter display
-      const counterDiv = document.getElementById('frequencyCounter');
-      let counterHtml = '<div style="font-weight: bold; margin-bottom: 5px;">Freq:</div>';
-      Object.keys(photoFrequency).sort().forEach(photo => {
-        counterHtml += `<div class="frequency-item"><span>${photo}</span><span>${photoFrequency[photo]}x</span></div>`;
-      });
-      counterDiv.innerHTML = counterHtml;
+      // Track appearances every 70 seconds (animation cycle)
+      const startTime = Date.now();
+      const cycleTime = 70000; // 70 seconds in milliseconds
+      
+      const updateCounter = () => {
+        const elapsed = Date.now() - startTime;
+        const cyclesCompleted = Math.floor(elapsed / cycleTime);
+        
+        // Each photo appears once per cycle
+        photoSlots.forEach(photoNum => {
+          photoFrequency[photoNum] = cyclesCompleted + 1;
+        });
+        
+        // Update display
+        const counterDiv = document.getElementById('frequencyCounter');
+        let counterHtml = `<div style="font-weight: bold; margin-bottom: 5px;">Freq (${cyclesCompleted + 1}c)</div>`;
+        Object.keys(photoFrequency).sort().forEach(photo => {
+          counterHtml += `<div class="frequency-item"><span>${photo}</span><span>${photoFrequency[photo]}x</span></div>`;
+        });
+        counterDiv.innerHTML = counterHtml;
+        
+        requestAnimationFrame(updateCounter);
+      };
+      
+      updateCounter();
     });
   </script>
 </body>
