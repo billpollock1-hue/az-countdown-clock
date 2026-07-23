@@ -218,7 +218,7 @@
       right: 8px;
       background: rgba(0, 0, 0, 0.9);
       color: #7fd900;
-      padding: 10px 8px;
+      padding: 8px 8px;
       border-radius: 6px;
       font-size: 11px;
       font-family: monospace;
@@ -226,6 +226,22 @@
       z-index: 50;
       border: 2px solid #7fd900;
       line-height: 1.3;
+    }
+
+    .counter-reset-btn {
+      background: rgba(127, 217, 0, 0.3);
+      border: 1px solid #7fd900;
+      color: #7fd900;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 9px;
+      cursor: pointer;
+      margin-bottom: 3px;
+      width: 100%;
+    }
+
+    .counter-reset-btn:active {
+      background: rgba(127, 217, 0, 0.6);
     }
 
     .frequency-item {
@@ -628,12 +644,24 @@
         if (!counterDiv) return;
         
         const totalAppearances = Object.values(animationCounts).reduce((a, b) => a + b, 0);
-        let counterHtml = `<div style="font-weight:bold;margin-bottom:2px;font-size:10px;">Total: ${totalAppearances}</div>`;
+        let counterHtml = `<button class="counter-reset-btn" id="resetCounterBtn">Reset</button>`;
+        counterHtml += `<div style="font-weight:bold;margin-bottom:2px;font-size:10px;">Total: ${totalAppearances}</div>`;
         Object.keys(animationCounts).sort().forEach(photo => {
           const count = animationCounts[photo];
           counterHtml += `<div class="frequency-item"><span>${photo}</span><span>${count}x</span></div>`;
         });
         counterDiv.innerHTML = counterHtml;
+        
+        // Add reset button listener
+        const resetBtn = document.getElementById('resetCounterBtn');
+        if (resetBtn) {
+          resetBtn.addEventListener('click', () => {
+            Object.keys(animationCounts).forEach(key => {
+              animationCounts[key] = 0;
+            });
+            updateCounterDisplay();
+          });
+        }
       };
       
       // Initial display
