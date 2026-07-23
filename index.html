@@ -228,7 +228,7 @@
       5% { left: 5%; top: 10px; transform: rotate(0deg); }
       50% { left: 5%; top: calc(100% - 60px); transform: rotate(0deg); }
       54% { left: calc(100% - 60px); top: calc(100% - 60px); transform: rotate(-360deg); }
-      100% { left: calc(100% - 60px); top: -80px; transform: rotate(0deg); }
+      100% { left: calc(100% - 60px); top: -80px; transform: rotate(-360deg); }
     }
 
     .img-1 { animation: float-path 65s linear infinite; animation-delay: 0s; }
@@ -531,20 +531,42 @@
       updatePhotosVisibility();
     });
 
-    // Randomize photo order
+    // Randomize photo order while keeping delays consistent
     window.addEventListener('DOMContentLoaded', () => {
-      const photos = document.querySelectorAll('.floating-image');
-      const delays = [0, 14, 28, 42, 56, 70, 84, 98, 112, 126, 140, 154, 168, 182, 196, 210, 224, 238];
+      const photoUrls = [
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/IMG_2566.jpeg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/IMG_5700.jpeg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/24e8783d-ba02-4e69-ad1e-3162707d5af0.jpeg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/6289936020292866475.jpeg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Boat.jpg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/IMG_5134.jpg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/IMG_5730.jpeg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/IMG_8304.jpeg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/IMG_8674.jpeg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/10945.jpeg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Anne.jpg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/The%20Heat.jpg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Cut.jpg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/CC.jpg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Water.jpg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Turtle.jpg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/CO%2026.jpg',
+        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/IMG_5702.jpg'
+      ];
       
-      // Shuffle delays array
-      for (let i = delays.length - 1; i > 0; i--) {
+      // Shuffle URLs array
+      for (let i = photoUrls.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [delays[i], delays[j]] = [delays[j], delays[i]];
+        [photoUrls[i], photoUrls[j]] = [photoUrls[j], photoUrls[i]];
       }
       
-      // Apply shuffled delays to photos
+      // Apply shuffled URLs to photos in order (img-1 through img-18)
+      const photos = document.querySelectorAll('.floating-image');
       photos.forEach((photo, index) => {
-        photo.style.animationDelay = delays[index] + 's';
+        const img = photo.querySelector('img');
+        if (img && photoUrls[index]) {
+          img.src = photoUrls[index];
+        }
       });
     });
   </script>
