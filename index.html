@@ -214,26 +214,25 @@
 
     .frequency-counter {
       position: fixed;
-      bottom: 100px;
-      right: 5px;
-      background: rgba(0, 0, 0, 0.85);
+      bottom: 90px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.9);
       color: #7fd900;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 12px;
+      padding: 10px 8px;
+      border-radius: 6px;
+      font-size: 11px;
       font-family: monospace;
-      width: 140px;
+      width: 155px;
       z-index: 50;
-      max-height: 320px;
-      overflow-y: auto;
       border: 2px solid #7fd900;
+      line-height: 1.3;
     }
 
     .frequency-item {
       display: flex;
       justify-content: space-between;
-      padding: 3px 0;
-      border-bottom: 1px solid rgba(127, 217, 0, 0.2);
+      padding: 1px 0;
+      font-size: 11px;
     }
 
     .floating-image img {
@@ -575,11 +574,9 @@
         'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/18.jpg'
       ];
       
-      const photoFrequency = {};
       const photoMap = {}; // maps URL to photo number
       for (let i = 1; i <= 18; i++) {
         const num = i.toString().padStart(2, '0');
-        photoFrequency[num] = 0;
         photoMap[`https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/${num}.jpg`] = num;
       }
       
@@ -601,24 +598,35 @@
         }
       });
       
-      // Track appearances every 70 seconds (animation cycle)
+      // Track appearances - each photo appears every 14 seconds at its slot position
       const startTime = Date.now();
-      const cycleTime = 70000; // 70 seconds in milliseconds
+      const photoInterval = 14000; // 14 seconds between photos in milliseconds
       
       const updateCounter = () => {
         const elapsed = Date.now() - startTime;
-        const cyclesCompleted = Math.floor(elapsed / cycleTime);
+        const secondsElapsed = elapsed / 1000;
+        const photosAppeared = Math.floor(secondsElapsed / 14); // How many photos should have appeared
         
-        // Each photo appears once per cycle
-        photoSlots.forEach(photoNum => {
-          photoFrequency[photoNum] = cyclesCompleted + 1;
-        });
+        // Reset and recount based on elapsed time
+        const tempFrequency = {};
+        for (let i = 1; i <= 18; i++) {
+          tempFrequency[i.toString().padStart(2, '0')] = 0;
+        }
+        
+        // Increment only photos that have appeared so far
+        for (let i = 0; i < photosAppeared; i++) {
+          const slotIndex = i % 18; // Wrap around after 18 photos
+          const photoNum = photoSlots[slotIndex];
+          tempFrequency[photoNum]++;
+        }
         
         // Update display
         const counterDiv = document.getElementById('frequencyCounter');
-        let counterHtml = `<div style="font-weight: bold; margin-bottom: 5px;">Freq (${cyclesCompleted + 1}c)</div>`;
-        Object.keys(photoFrequency).sort().forEach(photo => {
-          counterHtml += `<div class="frequency-item"><span>${photo}</span><span>${photoFrequency[photo]}x</span></div>`;
+        if (!counterDiv) return;
+        let counterHtml = `<div style="font-weight:bold;margin-bottom:2px;font-size:10px;">Photos: ${photosAppeared}</div>`;
+        Object.keys(tempFrequency).sort().forEach(photo => {
+          const count = tempFrequency[photo];
+          counterHtml += `<div class="frequency-item"><span>${photo}</span><span>${count}x</span></div>`;
         });
         counterDiv.innerHTML = counterHtml;
         
