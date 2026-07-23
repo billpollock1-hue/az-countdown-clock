@@ -625,14 +625,8 @@
         if (img && photoSlots[index]) {
           const photoNum = photoSlots[index];
           
-          // Count each time this photo's animation starts
+          // Count only when animation STARTS (not when it loops)
           photo.addEventListener('animationstart', () => {
-            animationCounts[photoNum]++;
-            updateCounterDisplay();
-          });
-          
-          // Also count on animation iteration (loop restart)
-          photo.addEventListener('animationiteration', () => {
             animationCounts[photoNum]++;
             updateCounterDisplay();
           });
