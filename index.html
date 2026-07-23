@@ -266,24 +266,24 @@
       100% { left: calc(100% - 60px); top: -80px; transform: rotate(-360deg); }
     }
 
-    .img-1 { animation: float-path 21s linear infinite; animation-delay: 0s; }
-    .img-2 { animation: float-path 21s linear infinite; animation-delay: 7s; }
-    .img-3 { animation: float-path 21s linear infinite; animation-delay: 14s; }
-    .img-4 { animation: float-path 21s linear infinite; animation-delay: 21s; }
-    .img-5 { animation: float-path 21s linear infinite; animation-delay: 28s; }
-    .img-6 { animation: float-path 21s linear infinite; animation-delay: 35s; }
-    .img-7 { animation: float-path 21s linear infinite; animation-delay: 42s; }
-    .img-8 { animation: float-path 21s linear infinite; animation-delay: 49s; }
-    .img-9 { animation: float-path 21s linear infinite; animation-delay: 56s; }
-    .img-10 { animation: float-path 21s linear infinite; animation-delay: 63s; }
-    .img-11 { animation: float-path 21s linear infinite; animation-delay: 70s; }
-    .img-12 { animation: float-path 21s linear infinite; animation-delay: 77s; }
-    .img-13 { animation: float-path 21s linear infinite; animation-delay: 84s; }
-    .img-14 { animation: float-path 21s linear infinite; animation-delay: 91s; }
-    .img-15 { animation: float-path 21s linear infinite; animation-delay: 98s; }
-    .img-16 { animation: float-path 21s linear infinite; animation-delay: 105s; }
-    .img-17 { animation: float-path 21s linear infinite; animation-delay: 112s; }
-    .img-18 { animation: float-path 21s linear infinite; animation-delay: 119s; }
+    .img-1 { animation: float-path 9s linear infinite; animation-delay: 0s; }
+    .img-2 { animation: float-path 9s linear infinite; animation-delay: 0.5s; }
+    .img-3 { animation: float-path 9s linear infinite; animation-delay: 1s; }
+    .img-4 { animation: float-path 9s linear infinite; animation-delay: 1.5s; }
+    .img-5 { animation: float-path 9s linear infinite; animation-delay: 2s; }
+    .img-6 { animation: float-path 9s linear infinite; animation-delay: 2.5s; }
+    .img-7 { animation: float-path 9s linear infinite; animation-delay: 3s; }
+    .img-8 { animation: float-path 9s linear infinite; animation-delay: 3.5s; }
+    .img-9 { animation: float-path 9s linear infinite; animation-delay: 4s; }
+    .img-10 { animation: float-path 9s linear infinite; animation-delay: 4.5s; }
+    .img-11 { animation: float-path 9s linear infinite; animation-delay: 5s; }
+    .img-12 { animation: float-path 9s linear infinite; animation-delay: 5.5s; }
+    .img-13 { animation: float-path 9s linear infinite; animation-delay: 6s; }
+    .img-14 { animation: float-path 9s linear infinite; animation-delay: 6.5s; }
+    .img-15 { animation: float-path 9s linear infinite; animation-delay: 7s; }
+    .img-16 { animation: float-path 9s linear infinite; animation-delay: 7.5s; }
+    .img-17 { animation: float-path 9s linear infinite; animation-delay: 8s; }
+    .img-18 { animation: float-path 9s linear infinite; animation-delay: 8.5s; }
     
     .arrival-section {
       display: grid;
@@ -614,11 +614,16 @@
         }
       });
       
+      console.log('=== SHUFFLED PHOTO ORDER ===');
+      console.log('photoSlots:', photoSlots);
+      console.log('Full rotation should be:', photoSlots.join(' → '));
+      
       // Time-based tracking - counts photos based on elapsed time since counter started
       let counterStartTime = Date.now();
-      const photoInterval = 7000; // 7 seconds (half of 14) - doubled speed
+      const photoInterval = 500; // 0.5 seconds - extremely fast for debugging
       let lastResetBtnId = null;
       let lastCounts = {};
+      let lastLoggedPhotosAppeared = -1;
       
       const updateCounterDisplay = () => {
         const counterDiv = document.getElementById('frequencyCounter');
@@ -628,33 +633,35 @@
         const elapsed = Date.now() - counterStartTime;
         const photosAppeared = Math.floor(elapsed / photoInterval);
         
-        // Reset and recount based on elapsed time
-        const animationCounts = {};
-        for (let i = 1; i <= 18; i++) {
-          animationCounts[i.toString().padStart(2, '0')] = 0;
+        // Only increment the NEW photo that just appeared (not recalculate all)
+        if (photosAppeared > lastLoggedPhotosAppeared && photosAppeared > 0) {
+          const slotIndex = (photosAppeared - 1) % 18;
+          const currentPhoto = photoSlots[slotIndex];
+          console.log(`Photo ${photosAppeared}: slot ${slotIndex} → ${currentPhoto} (elapsed: ${(elapsed/1000).toFixed(1)}s)`);
+          
+          // Only increment this one photo
+          if (!lastCounts[currentPhoto]) {
+            lastCounts[currentPhoto] = 0;
+          }
+          lastCounts[currentPhoto]++;
+          
+          lastLoggedPhotosAppeared = photosAppeared;
         }
         
-        // Increment only photos that have appeared so far
-        for (let i = 0; i < photosAppeared; i++) {
-          const slotIndex = i % 18;
-          const photoNum = photoSlots[slotIndex];
-          animationCounts[photoNum]++;
-        }
-        
-        const totalAppearances = Object.values(animationCounts).reduce((a, b) => a + b, 0);
+        const totalAppearances = Object.values(lastCounts).reduce((a, b) => a + b, 0);
         let counterHtml = `<button class="counter-reset-btn" id="resetCounterBtn">Reset</button>`;
         counterHtml += `<div style="font-weight:bold;margin-bottom:2px;font-size:10px;">Total: ${totalAppearances}</div>`;
-        Object.keys(animationCounts).sort().forEach(photo => {
-          const count = animationCounts[photo];
-          const lastCount = lastCounts[photo] || 0;
-          const isNew = count > lastCount;
+        
+        // Display all 18 photos with their counts
+        for (let i = 1; i <= 18; i++) {
+          const photo = i.toString().padStart(2, '0');
+          const count = lastCounts[photo] || 0;
+          const lastCount = (lastCounts[photo] || 0) - 1; // Check if it just incremented
+          const isNew = count > (lastCount + 1) ? false : (lastLoggedPhotosAppeared > 0 && photoSlots[(lastLoggedPhotosAppeared - 1) % 18] === photo);
           const bgColor = isNew ? 'rgba(127, 217, 0, 0.5)' : 'transparent';
           counterHtml += `<div class="frequency-item" style="background-color:${bgColor};padding:2px;border-radius:2px;"><span>${photo}</span><span>${count}x</span></div>`;
-        });
+        }
         counterDiv.innerHTML = counterHtml;
-        
-        // Store counts for next comparison
-        lastCounts = { ...animationCounts };
         
         // Attach reset button listener only if button is new
         const resetBtn = document.getElementById('resetCounterBtn');
@@ -663,6 +670,8 @@
             e.preventDefault();
             counterStartTime = Date.now();
             lastCounts = {};
+            lastLoggedPhotosAppeared = -1;
+            console.log('=== COUNTER RESET ===');
             updateCounterDisplay();
           };
           lastResetBtnId = resetBtn;
