@@ -212,8 +212,28 @@
       width: 100%;
     }
 
-    .toggle-photos-btn:active {
-      opacity: 0.8;
+    .frequency-counter {
+      position: fixed;
+      bottom: 80px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #7fd900;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-family: monospace;
+      max-width: 120px;
+      z-index: 50;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #7fd900;
+    }
+
+    .frequency-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+      border-bottom: 1px solid rgba(127, 217, 0, 0.3);
     }
 
     .floating-image img {
@@ -306,6 +326,7 @@
   </style>
 </head>
 <body>
+  <div class="frequency-counter" id="frequencyCounter"></div>
   <div class="screen-container" id="screenContainer">
     <!-- Arizona Screen -->
     <div class="screen" id="screen1">
@@ -555,9 +576,9 @@
       ];
       
       const photoFrequency = {};
-      photoUrls.forEach((url, i) => {
-        photoFrequency[(i + 1).toString().padStart(2, '0')] = 0;
-      });
+      for (let i = 1; i <= 18; i++) {
+        photoFrequency[i.toString().padStart(2, '0')] = 0;
+      }
       
       // Shuffle URLs array
       for (let i = photoUrls.length - 1; i > 0; i--) {
@@ -573,12 +594,17 @@
           const photoNum = photoUrls[index].match(/(\d{2})\.jpg/)[1];
           img.src = photoUrls[index];
           photoFrequency[photoNum]++;
-          console.log(`Position ${(index + 1).toString().padStart(2, '0')}: Photo ${photoNum} (Frequency: ${photoFrequency[photoNum]})`);
+          console.log(`Position ${(index + 1).toString().padStart(2, '0')}: Photo ${photoNum}`);
         }
       });
       
-      console.log('=== Photo Frequency Summary ===');
-      console.table(photoFrequency);
+      // Update frequency counter display
+      const counterDiv = document.getElementById('frequencyCounter');
+      let counterHtml = '<div style="font-weight: bold; margin-bottom: 5px;">Freq:</div>';
+      Object.keys(photoFrequency).sort().forEach(photo => {
+        counterHtml += `<div class="frequency-item"><span>${photo}</span><span>${photoFrequency[photo]}x</span></div>`;
+      });
+      counterDiv.innerHTML = counterHtml;
     });
   </script>
 </body>
