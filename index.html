@@ -250,24 +250,24 @@
       100% { left: calc(100% - 60px); top: -80px; transform: rotate(-360deg); }
     }
 
-    .img-1 { animation: float-path 70s linear infinite; animation-delay: 0s; }
-    .img-2 { animation: float-path 70s linear infinite; animation-delay: 14s; }
-    .img-3 { animation: float-path 70s linear infinite; animation-delay: 28s; }
-    .img-4 { animation: float-path 70s linear infinite; animation-delay: 42s; }
-    .img-5 { animation: float-path 70s linear infinite; animation-delay: 56s; }
-    .img-6 { animation: float-path 70s linear infinite; animation-delay: 70s; }
-    .img-7 { animation: float-path 70s linear infinite; animation-delay: 84s; }
-    .img-8 { animation: float-path 70s linear infinite; animation-delay: 98s; }
-    .img-9 { animation: float-path 70s linear infinite; animation-delay: 112s; }
-    .img-10 { animation: float-path 70s linear infinite; animation-delay: 126s; }
-    .img-11 { animation: float-path 70s linear infinite; animation-delay: 140s; }
-    .img-12 { animation: float-path 70s linear infinite; animation-delay: 154s; }
-    .img-13 { animation: float-path 70s linear infinite; animation-delay: 168s; }
-    .img-14 { animation: float-path 70s linear infinite; animation-delay: 182s; }
-    .img-15 { animation: float-path 70s linear infinite; animation-delay: 196s; }
-    .img-16 { animation: float-path 70s linear infinite; animation-delay: 210s; }
-    .img-17 { animation: float-path 70s linear infinite; animation-delay: 224s; }
-    .img-18 { animation: float-path 70s linear infinite; animation-delay: 238s; }
+    .img-1 { animation: float-path 42s linear infinite; animation-delay: 0s; }
+    .img-2 { animation: float-path 42s linear infinite; animation-delay: 14s; }
+    .img-3 { animation: float-path 42s linear infinite; animation-delay: 28s; }
+    .img-4 { animation: float-path 42s linear infinite; animation-delay: 42s; }
+    .img-5 { animation: float-path 42s linear infinite; animation-delay: 56s; }
+    .img-6 { animation: float-path 42s linear infinite; animation-delay: 70s; }
+    .img-7 { animation: float-path 42s linear infinite; animation-delay: 84s; }
+    .img-8 { animation: float-path 42s linear infinite; animation-delay: 98s; }
+    .img-9 { animation: float-path 42s linear infinite; animation-delay: 112s; }
+    .img-10 { animation: float-path 42s linear infinite; animation-delay: 126s; }
+    .img-11 { animation: float-path 42s linear infinite; animation-delay: 140s; }
+    .img-12 { animation: float-path 42s linear infinite; animation-delay: 154s; }
+    .img-13 { animation: float-path 42s linear infinite; animation-delay: 168s; }
+    .img-14 { animation: float-path 42s linear infinite; animation-delay: 182s; }
+    .img-15 { animation: float-path 42s linear infinite; animation-delay: 196s; }
+    .img-16 { animation: float-path 42s linear infinite; animation-delay: 210s; }
+    .img-17 { animation: float-path 42s linear infinite; animation-delay: 224s; }
+    .img-18 { animation: float-path 42s linear infinite; animation-delay: 238s; }
     
     .arrival-section {
       display: grid;
@@ -598,42 +598,46 @@
         }
       });
       
-      // Track appearances - each photo appears every 14 seconds at its slot position
-      const startTime = Date.now();
-      const photoInterval = 14000; // 14 seconds between photos in milliseconds
+      // Real-time tracking - listen for actual animation start events
+      const animationCounts = {};
+      for (let i = 1; i <= 18; i++) {
+        animationCounts[i.toString().padStart(2, '0')] = 0;
+      }
       
-      const updateCounter = () => {
-        const elapsed = Date.now() - startTime;
-        const secondsElapsed = elapsed / 1000;
-        const photosAppeared = Math.floor(secondsElapsed / 14); // How many photos should have appeared
-        
-        // Reset and recount based on elapsed time
-        const tempFrequency = {};
-        for (let i = 1; i <= 18; i++) {
-          tempFrequency[i.toString().padStart(2, '0')] = 0;
+      photos.forEach((photo, index) => {
+        const img = photo.querySelector('img');
+        if (img && photoSlots[index]) {
+          const photoNum = photoSlots[index];
+          
+          // Count each time this photo's animation starts
+          photo.addEventListener('animationstart', () => {
+            animationCounts[photoNum]++;
+            updateCounterDisplay();
+          });
+          
+          // Also count on animation iteration (loop restart)
+          photo.addEventListener('animationiteration', () => {
+            animationCounts[photoNum]++;
+            updateCounterDisplay();
+          });
         }
-        
-        // Increment only photos that have appeared so far
-        for (let i = 0; i < photosAppeared; i++) {
-          const slotIndex = i % 18; // Wrap around after 18 photos
-          const photoNum = photoSlots[slotIndex];
-          tempFrequency[photoNum]++;
-        }
-        
-        // Update display
+      });
+      
+      const updateCounterDisplay = () => {
         const counterDiv = document.getElementById('frequencyCounter');
         if (!counterDiv) return;
-        let counterHtml = `<div style="font-weight:bold;margin-bottom:2px;font-size:10px;">Photos: ${photosAppeared}</div>`;
-        Object.keys(tempFrequency).sort().forEach(photo => {
-          const count = tempFrequency[photo];
+        
+        const totalAppearances = Object.values(animationCounts).reduce((a, b) => a + b, 0);
+        let counterHtml = `<div style="font-weight:bold;margin-bottom:2px;font-size:10px;">Total: ${totalAppearances}</div>`;
+        Object.keys(animationCounts).sort().forEach(photo => {
+          const count = animationCounts[photo];
           counterHtml += `<div class="frequency-item"><span>${photo}</span><span>${count}x</span></div>`;
         });
         counterDiv.innerHTML = counterHtml;
-        
-        requestAnimationFrame(updateCounter);
       };
       
-      updateCounter();
+      // Initial display
+      updateCounterDisplay();
     });
   </script>
 </body>
