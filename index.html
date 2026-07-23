@@ -212,45 +212,6 @@
       width: 100%;
     }
 
-    .frequency-counter {
-      position: fixed;
-      bottom: 90px;
-      right: 8px;
-      background: rgba(0, 0, 0, 0.9);
-      color: #7fd900;
-      padding: 8px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-family: monospace;
-      width: 155px;
-      z-index: 50;
-      border: 2px solid #7fd900;
-      line-height: 1.3;
-    }
-
-    .counter-reset-btn {
-      background: rgba(127, 217, 0, 0.3);
-      border: 1px solid #7fd900;
-      color: #7fd900;
-      padding: 2px 4px;
-      border-radius: 3px;
-      font-size: 9px;
-      cursor: pointer;
-      margin-bottom: 3px;
-      width: 100%;
-    }
-
-    .counter-reset-btn:active {
-      background: rgba(127, 217, 0, 0.6);
-    }
-
-    .frequency-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 1px 0;
-      font-size: 11px;
-    }
-
     .floating-image img {
       width: 100%;
       height: 100%;
@@ -266,24 +227,24 @@
       100% { left: calc(100% - 60px); top: -80px; transform: rotate(-360deg); }
     }
 
-    .img-1 { animation: float-path 36s linear infinite; animation-delay: 0s; }
-    .img-2 { animation: float-path 36s linear infinite; animation-delay: 2s; }
-    .img-3 { animation: float-path 36s linear infinite; animation-delay: 4s; }
-    .img-4 { animation: float-path 36s linear infinite; animation-delay: 6s; }
-    .img-5 { animation: float-path 36s linear infinite; animation-delay: 8s; }
-    .img-6 { animation: float-path 36s linear infinite; animation-delay: 10s; }
-    .img-7 { animation: float-path 36s linear infinite; animation-delay: 12s; }
-    .img-8 { animation: float-path 36s linear infinite; animation-delay: 14s; }
-    .img-9 { animation: float-path 36s linear infinite; animation-delay: 16s; }
-    .img-10 { animation: float-path 36s linear infinite; animation-delay: 18s; }
-    .img-11 { animation: float-path 36s linear infinite; animation-delay: 20s; }
-    .img-12 { animation: float-path 36s linear infinite; animation-delay: 22s; }
-    .img-13 { animation: float-path 36s linear infinite; animation-delay: 24s; }
-    .img-14 { animation: float-path 36s linear infinite; animation-delay: 26s; }
-    .img-15 { animation: float-path 36s linear infinite; animation-delay: 28s; }
-    .img-16 { animation: float-path 36s linear infinite; animation-delay: 30s; }
-    .img-17 { animation: float-path 36s linear infinite; animation-delay: 32s; }
-    .img-18 { animation: float-path 36s linear infinite; animation-delay: 34s; }
+    .img-1 { animation: float-path 18s linear infinite; animation-delay: 0s; }
+    .img-2 { animation: float-path 18s linear infinite; animation-delay: 4s; }
+    .img-3 { animation: float-path 18s linear infinite; animation-delay: 8s; }
+    .img-4 { animation: float-path 18s linear infinite; animation-delay: 12s; }
+    .img-5 { animation: float-path 18s linear infinite; animation-delay: 16s; }
+    .img-6 { animation: float-path 18s linear infinite; animation-delay: 20s; }
+    .img-7 { animation: float-path 18s linear infinite; animation-delay: 24s; }
+    .img-8 { animation: float-path 18s linear infinite; animation-delay: 28s; }
+    .img-9 { animation: float-path 18s linear infinite; animation-delay: 32s; }
+    .img-10 { animation: float-path 18s linear infinite; animation-delay: 36s; }
+    .img-11 { animation: float-path 18s linear infinite; animation-delay: 40s; }
+    .img-12 { animation: float-path 18s linear infinite; animation-delay: 44s; }
+    .img-13 { animation: float-path 18s linear infinite; animation-delay: 48s; }
+    .img-14 { animation: float-path 18s linear infinite; animation-delay: 52s; }
+    .img-15 { animation: float-path 18s linear infinite; animation-delay: 56s; }
+    .img-16 { animation: float-path 18s linear infinite; animation-delay: 60s; }
+    .img-17 { animation: float-path 18s linear infinite; animation-delay: 64s; }
+    .img-18 { animation: float-path 18s linear infinite; animation-delay: 68s; }
     
     .arrival-section {
       display: grid;
@@ -341,7 +302,7 @@
   </style>
 </head>
 <body>
-  <div class="frequency-counter" id="frequencyCounter"></div>
+
   <div class="screen-container" id="screenContainer">
     <!-- Arizona Screen -->
     <div class="screen" id="screen1">
@@ -590,96 +551,24 @@
         'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/18.jpg'
       ];
       
-      const photoMap = {}; // maps URL to photo number
-      for (let i = 1; i <= 18; i++) {
-        const num = i.toString().padStart(2, '0');
-        photoMap[`https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/${num}.jpg`] = num;
-      }
-      
-      // Shuffle URLs array
-      for (let i = photoUrls.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [photoUrls[i], photoUrls[j]] = [photoUrls[j], photoUrls[i]];
-      }
-      
-      // Apply shuffled URLs to photos
+      // Apply photos in sequential order (no randomization)
       const photos = document.querySelectorAll('.floating-image');
       const photoSlots = [];
       photos.forEach((photo, index) => {
         const img = photo.querySelector('img');
-        if (img && photoUrls[index]) {
-          img.src = photoUrls[index];
-          const photoNum = photoMap[photoUrls[index]];
+        if (img) {
+          // Use photos in order: 01, 02, 03... 18
+          const photoNum = ((index % 18) + 1).toString().padStart(2, '0');
+          const url = `https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/${photoNum}.jpg`;
+          img.src = url;
           photoSlots.push(photoNum);
         }
       });
       
-      console.log('=== SHUFFLED PHOTO ORDER ===');
+      console.log('=== SEQUENTIAL PHOTO ORDER (NO RANDOMIZATION) ===');
       console.log('photoSlots:', photoSlots);
-      console.log('Full rotation should be:', photoSlots.join(' → '));
+      console.log('Cycle: 01 → 02 → 03... → 18 → repeat');
       
-      // Time-based tracking - counts photos based on elapsed time since counter started
-      let counterStartTime = Date.now();
-      const photoInterval = 2000; // 2 seconds spacing
-      let lastResetBtnId = null;
-      let lastCounts = {};
-      let lastLoggedPhotosAppeared = -1;
-      
-      const updateCounterDisplay = () => {
-        const counterDiv = document.getElementById('frequencyCounter');
-        if (!counterDiv) return;
-        
-        // Calculate how many photos should have appeared by now
-        const elapsed = Date.now() - counterStartTime;
-        const photosAppeared = Math.floor(elapsed / photoInterval);
-        
-        // Only increment the NEW photo that just appeared (not recalculate all)
-        if (photosAppeared > lastLoggedPhotosAppeared && photosAppeared > 0) {
-          const slotIndex = (photosAppeared - 1) % 18;
-          const currentPhoto = photoSlots[slotIndex];
-          console.log(`Photo ${photosAppeared}: slot ${slotIndex} → ${currentPhoto} (elapsed: ${(elapsed/1000).toFixed(1)}s)`);
-          
-          // Only increment this one photo
-          if (!lastCounts[currentPhoto]) {
-            lastCounts[currentPhoto] = 0;
-          }
-          lastCounts[currentPhoto]++;
-          
-          lastLoggedPhotosAppeared = photosAppeared;
-        }
-        
-        const totalAppearances = Object.values(lastCounts).reduce((a, b) => a + b, 0);
-        let counterHtml = `<button class="counter-reset-btn" id="resetCounterBtn">Reset</button>`;
-        counterHtml += `<div style="font-weight:bold;margin-bottom:2px;font-size:10px;">Total: ${totalAppearances}</div>`;
-        
-        // Display all 18 photos with their counts
-        for (let i = 1; i <= 18; i++) {
-          const photo = i.toString().padStart(2, '0');
-          const count = lastCounts[photo] || 0;
-          const lastCount = (lastCounts[photo] || 0) - 1; // Check if it just incremented
-          const isNew = count > (lastCount + 1) ? false : (lastLoggedPhotosAppeared > 0 && photoSlots[(lastLoggedPhotosAppeared - 1) % 18] === photo);
-          const bgColor = isNew ? 'rgba(127, 217, 0, 0.5)' : 'transparent';
-          counterHtml += `<div class="frequency-item" style="background-color:${bgColor};padding:2px;border-radius:2px;"><span>${photo}</span><span>${count}x</span></div>`;
-        }
-        counterDiv.innerHTML = counterHtml;
-        
-        // Attach reset button listener only if button is new
-        const resetBtn = document.getElementById('resetCounterBtn');
-        if (resetBtn && lastResetBtnId !== resetBtn) {
-          resetBtn.onclick = (e) => {
-            e.preventDefault();
-            counterStartTime = Date.now();
-            lastCounts = {};
-            lastLoggedPhotosAppeared = -1;
-            console.log('=== COUNTER RESET ===');
-            updateCounterDisplay();
-          };
-          lastResetBtnId = resetBtn;
-        }
-      };
-      
-      // Update counter every 500ms
-      setInterval(updateCounterDisplay, 500);
     });
   </script>
 </body>
