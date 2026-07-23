@@ -226,30 +226,30 @@
 
     @keyframes float-path {
       0% { left: 5%; top: -80px; transform: rotate(0deg); }
-      5% { left: 5%; top: 10px; transform: rotate(0deg); }
-      50% { left: 5%; top: calc(100% - 60px); transform: rotate(0deg); }
-      51% { left: calc(100% - 60px); top: calc(100% - 60px); transform: rotate(-360deg); }
-      100% { left: calc(100% - 60px); top: -80px; transform: rotate(-360deg); }
+      5% { left: 5%; top: 10px; transform: rotate(-90deg); }
+      50% { left: 5%; top: calc(100% - 60px); transform: rotate(-360deg); }
+      51% { left: calc(100% - 60px); top: calc(100% - 60px); transform: rotate(-450deg); }
+      100% { left: calc(100% - 60px); top: -80px; transform: rotate(-720deg); }
     }
 
-    .img-1 { animation: float-path 88s linear infinite; animation-delay: 0s; }
-    .img-2 { animation: float-path 88s linear infinite; animation-delay: 14s; }
-    .img-3 { animation: float-path 88s linear infinite; animation-delay: 28s; }
-    .img-4 { animation: float-path 88s linear infinite; animation-delay: 42s; }
-    .img-5 { animation: float-path 88s linear infinite; animation-delay: 56s; }
-    .img-6 { animation: float-path 88s linear infinite; animation-delay: 70s; }
-    .img-7 { animation: float-path 88s linear infinite; animation-delay: 84s; }
-    .img-8 { animation: float-path 88s linear infinite; animation-delay: 98s; }
-    .img-9 { animation: float-path 88s linear infinite; animation-delay: 112s; }
-    .img-10 { animation: float-path 88s linear infinite; animation-delay: 126s; }
-    .img-11 { animation: float-path 88s linear infinite; animation-delay: 140s; }
-    .img-12 { animation: float-path 88s linear infinite; animation-delay: 154s; }
-    .img-13 { animation: float-path 88s linear infinite; animation-delay: 168s; }
-    .img-14 { animation: float-path 88s linear infinite; animation-delay: 182s; }
-    .img-15 { animation: float-path 88s linear infinite; animation-delay: 196s; }
-    .img-16 { animation: float-path 88s linear infinite; animation-delay: 210s; }
-    .img-17 { animation: float-path 88s linear infinite; animation-delay: 224s; }
-    .img-18 { animation: float-path 88s linear infinite; animation-delay: 238s; }
+    .img-1 { animation: float-path 65s linear infinite; animation-delay: 0s; }
+    .img-2 { animation: float-path 65s linear infinite; animation-delay: 14s; }
+    .img-3 { animation: float-path 65s linear infinite; animation-delay: 28s; }
+    .img-4 { animation: float-path 65s linear infinite; animation-delay: 42s; }
+    .img-5 { animation: float-path 65s linear infinite; animation-delay: 56s; }
+    .img-6 { animation: float-path 65s linear infinite; animation-delay: 70s; }
+    .img-7 { animation: float-path 65s linear infinite; animation-delay: 84s; }
+    .img-8 { animation: float-path 65s linear infinite; animation-delay: 98s; }
+    .img-9 { animation: float-path 65s linear infinite; animation-delay: 112s; }
+    .img-10 { animation: float-path 65s linear infinite; animation-delay: 126s; }
+    .img-11 { animation: float-path 65s linear infinite; animation-delay: 140s; }
+    .img-12 { animation: float-path 65s linear infinite; animation-delay: 154s; }
+    .img-13 { animation: float-path 65s linear infinite; animation-delay: 168s; }
+    .img-14 { animation: float-path 65s linear infinite; animation-delay: 182s; }
+    .img-15 { animation: float-path 65s linear infinite; animation-delay: 196s; }
+    .img-16 { animation: float-path 65s linear infinite; animation-delay: 210s; }
+    .img-17 { animation: float-path 65s linear infinite; animation-delay: 224s; }
+    .img-18 { animation: float-path 65s linear infinite; animation-delay: 238s; }
     
     .arrival-section {
       display: grid;
@@ -530,6 +530,23 @@
       });
 
       updatePhotosVisibility();
+    });
+
+    // Randomize photo order
+    window.addEventListener('DOMContentLoaded', () => {
+      const photos = document.querySelectorAll('.floating-image');
+      const delays = [0, 14, 28, 42, 56, 70, 84, 98, 112, 126, 140, 154, 168, 182, 196, 210, 224, 238];
+      
+      // Shuffle delays array
+      for (let i = delays.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [delays[i], delays[j]] = [delays[j], delays[i]];
+      }
+      
+      // Apply shuffled delays to photos
+      photos.forEach((photo, index) => {
+        photo.style.animationDelay = delays[index] + 's';
+      });
     });
   </script>
 </body>
