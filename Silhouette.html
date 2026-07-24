@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>BB Returns - Silhouette Progress</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      padding: 20px;
+      max-width: 100%;
+      height: 100%;
+      justify-content: center;
+    }
+
+    .title {
+      color: white;
+      font-size: 32px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .silhouette-wrapper {
+      position: relative;
+      width: 240px;
+      height: 520px;
+      border: 3px solid white;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .silhouette-base {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Brian.jpg');
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0) contrast(1.2);
+      z-index: 1;
+    }
+
+    .progress-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0%;
+      background: linear-gradient(to top, #7fd900, #90ee90);
+      opacity: 0.85;
+      z-index: 2;
+      transition: height 0.1s linear;
+    }
+
+    .progress-info {
+      color: white;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .progress-percent {
+      font-size: 48px;
+      color: #7fd900;
+      margin-top: 10px;
+    }
+
+    .arrival-date {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 16px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">BB Returns</div>
+    
+    <div class="silhouette-wrapper">
+      <div class="silhouette-base"></div>
+      <div class="progress-overlay" id="progressOverlay"></div>
+    </div>
+
+    <div class="progress-info">
+      <div id="daysLeft">--- days</div>
+      <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+    <div class="arrival-date">
+      Arriving: <span id="arrivalDate">Sep 10, 7:00 PM MST</span>
+    </div>
+  </div>
+
+  <script>
+    // Countdown configuration
+    const departureTime = new Date('2026-06-03T08:50:00').getTime();
+    const arrivalTime = new Date('2026-09-10T19:00:00').getTime(); // 7 PM MST
+    const totalTime = arrivalTime - departureTime;
+
+    function updateProgress() {
+      const now = new Date().getTime();
+      const elapsed = now - departureTime;
+      const remaining = arrivalTime - now;
+      
+      // Calculate percentage completed (0-100)
+      const percentCompleted = Math.max(0, Math.min(100, (elapsed / totalTime) * 100));
+      
+      // Update progress overlay height (grows from bottom up)
+      const progressOverlay = document.getElementById('progressOverlay');
+      progressOverlay.style.height = percentCompleted + '%';
+      
+      // Update percentage text
+      document.getElementById('progressPercent').textContent = percentCompleted.toFixed(1) + '%';
+      
+      // Update days left
+      const daysLeft = Math.ceil(remaining / (1000 * 60 * 60 * 24));
+      document.getElementById('daysLeft').textContent = Math.max(0, daysLeft) + ' days left';
+      
+      // Update arrival date
+      const arrivalDate = new Date(arrivalTime);
+      const options = { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Denver' };
+      document.getElementById('arrivalDate').textContent = arrivalDate.toLocaleDateString('en-US', options) + ' MST';
+    }
+
+    // Initial update
+    updateProgress();
+    
+    // Update every 100ms for smooth animation
+    setInterval(updateProgress, 100);
+  </script>
+</body>
+</html>
