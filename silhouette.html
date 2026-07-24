@@ -161,6 +161,52 @@
       white-space: nowrap;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
     }
+
+    .axis {
+      position: absolute;
+      left: 100%;
+      margin-left: 14px;
+      top: 0;
+      height: 100%;
+      width: 2px;
+      z-index: 3;
+    }
+
+    .axis-track {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #7fff00;
+    }
+
+    .axis-track::before,
+    .axis-track::after {
+      content: '';
+      position: absolute;
+      left: -4px;
+      width: 10px;
+      height: 2px;
+      background: #7fff00;
+    }
+
+    .axis-track::before { top: 0; }
+    .axis-track::after { bottom: 0; }
+
+    .axis-label {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 28px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .axis-label-top { top: -14px; }
+    .axis-label-bottom { bottom: -14px; }
   </style>
 </head>
 <body>
@@ -168,6 +214,12 @@
     <div class="title">BB Returns</div>
     
     <div class="silhouette-stage">
+      <div class="axis">
+        <div class="axis-track"></div>
+        <div class="axis-label axis-label-top">100</div>
+        <div class="axis-label axis-label-bottom">0</div>
+      </div>
+
       <div class="silhouette-wrapper">
         <div class="photo-full"></div>
         <div class="outline-reveal" id="outlineReveal">
