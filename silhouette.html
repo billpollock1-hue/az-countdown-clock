@@ -22,6 +22,7 @@
       align-items: center;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       overflow: hidden;
+      padding-top: env(safe-area-inset-top);
     }
 
     .container {
@@ -37,9 +38,10 @@
 
     .title {
       color: white;
-      font-size: 32px;
+      font-size: 44px;
       font-weight: bold;
       text-align: center;
+      margin-top: 16px;
     }
 
     .silhouette-wrapper {
@@ -90,7 +92,7 @@
     }
 
     .progress-info {
-      color: white;
+      color: #7fff00;
       text-align: center;
       font-size: 24px;
       font-weight: bold;
@@ -236,7 +238,6 @@
 
     <div class="progress-info">
       <div id="daysLeft">--- days</div>
-      <div class="progress-percent" id="progressPercent">0%</div>
     </div>
 
     <div class="arrival-date">
@@ -268,9 +269,6 @@
       const annotation = document.getElementById('annotation');
       annotation.style.top = (100 - percentCompleted) + '%';
       document.getElementById('annotationPercent').textContent = percentCompleted.toFixed(2) + '%';
-      
-      // Update percentage text
-      document.getElementById('progressPercent').textContent = percentCompleted.toFixed(2) + '%';
       
       // Update days left
       const daysLeft = Math.ceil(remaining / (1000 * 60 * 60 * 24));
