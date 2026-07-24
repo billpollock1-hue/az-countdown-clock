@@ -53,29 +53,40 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 
-    .silhouette-base {
+    .photo-full {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-image: url('https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Brian.jpg');
+      background-image: url('https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Pool.jpg');
       background-size: cover;
       background-position: center;
-      filter: grayscale(1) brightness(0.35) contrast(1.4);
       z-index: 1;
     }
 
-    .progress-overlay {
+    /* Clipping window that grows from the bottom to reveal the outline */
+    .outline-reveal {
       position: absolute;
       bottom: 0;
       left: 0;
       width: 100%;
       height: 0%;
-      background: linear-gradient(to top, #7fd900, #90ee90);
-      opacity: 0.85;
+      overflow: hidden;
       z-index: 2;
       transition: height 0.1s linear;
+    }
+
+    /* Fixed full-size outline image; only the part inside .outline-reveal shows */
+    .outline-image {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 240px;
+      height: 520px;
+      background-image: url('https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/PoolOutline.png');
+      background-size: cover;
+      background-position: center;
     }
 
     .progress-info {
@@ -96,15 +107,62 @@
       font-size: 16px;
       margin-top: 20px;
     }
+
+    .silhouette-stage {
+      position: relative;
+    }
+
+    .annotation {
+      position: absolute;
+      left: 100%;
+      margin-left: 14px;
+      top: 0%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      z-index: 5;
+      transition: top 0.1s linear;
+      pointer-events: none;
+    }
+
+    .annotation-arrow {
+      width: 0;
+      height: 0;
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+      border-right: 9px solid white;
+      margin-right: -1px;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+    }
+
+    .annotation-box {
+      background: white;
+      color: #333;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: bold;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="title">BB Returns</div>
     
-    <div class="silhouette-wrapper">
-      <div class="silhouette-base"></div>
-      <div class="progress-overlay" id="progressOverlay"></div>
+    <div class="silhouette-stage">
+      <div class="silhouette-wrapper">
+        <div class="photo-full"></div>
+        <div class="outline-reveal" id="outlineReveal">
+          <div class="outline-image"></div>
+        </div>
+      </div>
+
+      <div class="annotation" id="annotation">
+        <div class="annotation-arrow"></div>
+        <div class="annotation-box"><span id="annotationPercent">0.00%</span></div>
+      </div>
     </div>
 
     <div class="progress-info">
@@ -131,9 +189,14 @@
       // Calculate percentage completed (0-100)
       const percentCompleted = Math.max(0, Math.min(100, (elapsed / totalTime) * 100));
       
-      // Update progress overlay height (grows from bottom up)
-      const progressOverlay = document.getElementById('progressOverlay');
-      progressOverlay.style.height = percentCompleted + '%';
+      // Update outline reveal height (grows from bottom up)
+      const outlineReveal = document.getElementById('outlineReveal');
+      outlineReveal.style.height = percentCompleted + '%';
+
+      // Update annotation: sits at the top edge of the reveal, pointing at it
+      const annotation = document.getElementById('annotation');
+      annotation.style.top = (100 - percentCompleted) + '%';
+      document.getElementById('annotationPercent').textContent = percentCompleted.toFixed(2) + '%';
       
       // Update percentage text
       document.getElementById('progressPercent').textContent = percentCompleted.toFixed(1) + '%';
