@@ -418,8 +418,8 @@
 
   <script>
     let countdown = {
-      start: new Date(2026, 5, 3, 8, 50, 0),
-      end: new Date(2026, 8, 10, 19, 0, 0)  // Will be overwritten by config.json
+      start: new Date('2026-06-03T08:50:00-07:00'),
+      end: new Date('2026-09-10T19:00:00-07:00')  // Will be overwritten by config.json
     };
 
     // Load configuration from config.json
@@ -427,9 +427,7 @@
       try {
         const response = await fetch('https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/config.json');
         const config = await response.json();
-        const [year, month, day] = config.returnDate.split('-');
-        const [hour, minute] = config.returnTime.split(':');
-        countdown.end = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));
+        countdown.end = new Date(`${config.returnDate}T${config.returnTime}:00-07:00`);
         updateArrivalDisplay();
       } catch (error) {
         console.error('Failed to load config:', error);
@@ -446,11 +444,21 @@
       updateArrivalDisplay();
     }
 
+    // Get date/time components as they are in Arizona, regardless of device timezone
+    function getAZParts(date) {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Phoenix', year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hour12: false
+      }).formatToParts(date);
+      const obj = {};
+      parts.forEach(p => obj[p.type] = p.value);
+      return obj;
+    }
+
     function updateArrivalDisplay() {
       const date = countdown.end;
-      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const dateStr = `${monthNames[date.getMonth()]} ${date.getDate()}`;
-      const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/Phoenix' });
+      const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Phoenix' });
       
       document.getElementById('arrivalDate').textContent = dateStr;
       document.getElementById('arrivalTime').textContent = timeStr;
@@ -458,11 +466,12 @@
 
     // Edit date
     document.getElementById('arrivalDate').addEventListener('click', () => {
-      const newDate = prompt('Enter new arrival date (MM/DD/YYYY):', `${countdown.end.getMonth() + 1}/${countdown.end.getDate()}/${countdown.end.getFullYear()}`);
+      const azParts = getAZParts(countdown.end);
+      const newDate = prompt('Enter new arrival date (MM/DD/YYYY):', `${azParts.month}/${azParts.day}/${azParts.year}`);
       if (newDate) {
         const [month, day, year] = newDate.split('/');
         if (month && day && year) {
-          countdown.end = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), countdown.end.getHours(), countdown.end.getMinutes());
+          countdown.end = new Date(`${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}T${azParts.hour}:${azParts.minute}:00-07:00`);
           localStorage.setItem('arrivalDateTime', countdown.end.toISOString());
           updateArrivalDisplay();
         }
@@ -471,7 +480,8 @@
 
     // Edit time
     document.getElementById('arrivalTime').addEventListener('click', () => {
-      const newTime = prompt('Enter new arrival time (HH:MM AM/PM):', countdown.end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }));
+      const azParts = getAZParts(countdown.end);
+      const newTime = prompt('Enter new arrival time (HH:MM AM/PM):', countdown.end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Phoenix' }));
       if (newTime) {
         const timeParts = newTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
         if (timeParts) {
@@ -482,7 +492,7 @@
           if (period === 'PM' && hour !== 12) hour += 12;
           if (period === 'AM' && hour === 12) hour = 0;
           
-          countdown.end = new Date(countdown.end.getFullYear(), countdown.end.getMonth(), countdown.end.getDate(), hour, minute);
+          countdown.end = new Date(`${azParts.year}-${azParts.month}-${azParts.day}T${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}:00-07:00`);
           localStorage.setItem('arrivalDateTime', countdown.end.toISOString());
           updateArrivalDisplay();
         }
