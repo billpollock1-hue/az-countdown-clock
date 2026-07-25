@@ -581,6 +581,18 @@
       const TOTAL_PHOTOS = 25;
       let deck = [];
 
+      // Debug log: visit the page with ?debug=1 appended to the URL to see
+      // a running list of every photo draw, with a line break each time
+      // the deck reshuffles (i.e. each time a full batch of 25 completes).
+      const debugMode = window.location.search.includes('debug=1');
+      let debugHistory = [];
+      let debugPanel = null;
+      if (debugMode) {
+        debugPanel = document.createElement('div');
+        debugPanel.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:35vh;overflow-y:auto;background:rgba(0,0,0,0.92);color:#7fff00;font-family:monospace;font-size:12px;padding:10px;z-index:9999;white-space:pre-wrap;';
+        document.body.appendChild(debugPanel);
+      }
+
       function shuffle(arr) {
         for (let i = arr.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
@@ -592,11 +604,18 @@
       function refillDeck() {
         const nums = Array.from({ length: TOTAL_PHOTOS }, (_, i) => String(i + 1).padStart(2, '0'));
         deck = shuffle(nums);
+        if (debugMode) debugHistory.push('--- reshuffled ---');
       }
 
       function nextPhotoUrl() {
         if (deck.length === 0) refillDeck();
         const num = deck.pop();
+        if (debugMode) {
+          debugHistory.push(num);
+          if (debugHistory.length > 150) debugHistory = debugHistory.slice(-150);
+          debugPanel.textContent = debugHistory.join(' ');
+          debugPanel.scrollTop = debugPanel.scrollHeight;
+        }
         return `https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/${num}.jpg`;
       }
 
