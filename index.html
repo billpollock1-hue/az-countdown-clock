@@ -264,6 +264,13 @@
     .img-16 { animation: float-path 36s linear infinite; animation-delay: 120s; }
     .img-17 { animation: float-path 36s linear infinite; animation-delay: 128s; }
     .img-18 { animation: float-path 36s linear infinite; animation-delay: 136s; }
+    .img-19 { animation: float-path 36s linear infinite; animation-delay: 144s; }
+    .img-20 { animation: float-path 36s linear infinite; animation-delay: 152s; }
+    .img-21 { animation: float-path 36s linear infinite; animation-delay: 160s; }
+    .img-22 { animation: float-path 36s linear infinite; animation-delay: 168s; }
+    .img-23 { animation: float-path 36s linear infinite; animation-delay: 176s; }
+    .img-24 { animation: float-path 36s linear infinite; animation-delay: 184s; }
+    .img-25 { animation: float-path 36s linear infinite; animation-delay: 192s; }
     
     .arrival-section {
       display: grid;
@@ -344,6 +351,13 @@
       <div class="floating-image img-16"><img src="https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Turtle.jpg" alt="photo"></div>
       <div class="floating-image img-17"><img src="https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/CO%2026.jpg" alt="photo"></div>
       <div class="floating-image img-18"><img src="https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/IMG_5702.jpg" alt="photo"></div>
+      <div class="floating-image img-19"><img src="https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/19.jpg" alt="photo"></div>
+      <div class="floating-image img-20"><img src="https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/20.jpg" alt="photo"></div>
+      <div class="floating-image img-21"><img src="https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/21.jpg" alt="photo"></div>
+      <div class="floating-image img-22"><img src="https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/22.jpg" alt="photo"></div>
+      <div class="floating-image img-23"><img src="https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/23.jpg" alt="photo"></div>
+      <div class="floating-image img-24"><img src="https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/24.jpg" alt="photo"></div>
+      <div class="floating-image img-25"><img src="https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/25.jpg" alt="photo"></div>
 
       <div class="content">
         <div class="title-box">
@@ -558,46 +572,45 @@
       updatePhotosVisibility();
     });
 
-    // Randomize photo order while keeping delays consistent
+    // Continuously-refilling shuffled "deck" of all 25 photos.
+    // Each floating slot draws its next photo from the deck every time
+    // its own float animation loops back to the start. Once all 25 have
+    // been drawn (one full randomized pass through the whole set), the
+    // deck reshuffles and a fresh randomized pass begins - forever.
     window.addEventListener('DOMContentLoaded', () => {
-      const photoUrls = [
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/01.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/02.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/03.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/04.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/05.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/06.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/07.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/08.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/09.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/10.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/11.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/12.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/13.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/14.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/15.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/16.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/17.jpg',
-        'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/18.jpg'
-      ];
-      
-      // Apply photos in sequential order (no randomization)
-      const photos = document.querySelectorAll('.floating-image');
-      const photoSlots = [];
-      photos.forEach((photo, index) => {
-        const img = photo.querySelector('img');
-        if (img) {
-          // Use photos in order: 01, 02, 03... 18
-          const photoNum = ((index % 18) + 1).toString().padStart(2, '0');
-          const url = `https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/${photoNum}.jpg`;
-          img.src = url;
-          photoSlots.push(photoNum);
+      const TOTAL_PHOTOS = 25;
+      let deck = [];
+
+      function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
         }
+        return arr;
+      }
+
+      function refillDeck() {
+        const nums = Array.from({ length: TOTAL_PHOTOS }, (_, i) => String(i + 1).padStart(2, '0'));
+        deck = shuffle(nums);
+      }
+
+      function nextPhotoUrl() {
+        if (deck.length === 0) refillDeck();
+        const num = deck.pop();
+        return `https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/${num}.jpg`;
+      }
+
+      refillDeck();
+
+      const photos = document.querySelectorAll('.floating-image');
+      photos.forEach((photo) => {
+        const img = photo.querySelector('img');
+        if (!img) return;
+        img.src = nextPhotoUrl();
+        photo.addEventListener('animationiteration', () => {
+          img.src = nextPhotoUrl();
+        });
       });
-      
-      console.log('=== SEQUENTIAL PHOTO ORDER (NO RANDOMIZATION) ===');
-      console.log('photoSlots:', photoSlots);
-      console.log('Cycle: 01 → 02 → 03... → 18 → repeat');
       
     });
   </script>
