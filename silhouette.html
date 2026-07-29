@@ -300,6 +300,10 @@
     
     // Update every 100ms for smooth animation
     setInterval(updateProgress, 100);
+
+    // Auto-reload every 5 minutes so any already-open tab can never run
+    // stale JS for long after a deploy.
+    setInterval(() => { window.location.reload(); }, 5 * 60 * 1000);
   </script>
 </body>
 </html>

@@ -509,6 +509,11 @@
     updateScreen();
     setInterval(updateScreen, 100);
 
+    // Auto-reload every 5 minutes so any already-open tab (yours or anyone
+    // you've shared the link with) can never run stale JS for long after a
+    // deploy - it just quietly refreshes itself in the background.
+    setInterval(() => { window.location.reload(); }, 5 * 60 * 1000);
+
     // Toggle photos visibility
     window.addEventListener('DOMContentLoaded', () => {
       const toggleBtn = document.getElementById('togglePhotosBtn');
