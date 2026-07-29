@@ -399,15 +399,33 @@
   <script>
     let countdown = {
       start: new Date('2026-06-03T08:50:00-07:00'),
-      end: new Date('2026-09-10T19:00:00-07:00')  // Will be overwritten by config.json
+      end: new Date('2026-09-10T19:00:00-07:00')
     };
+
+    // --- Arrival date/time linear interpolation ---
+    // Instead of jumping the arrival straight to the new date, the displayed
+    // arrival slides smoothly from the OLD value to the NEW value between
+    // INTERP_START ("now") and INTERP_END, then stays fixed at NEW after that.
+    const OLD_ARRIVAL = new Date('2026-09-10T19:00:00-07:00');   // Sep 10, 7:00 PM MST
+    const NEW_ARRIVAL = new Date('2026-09-05T16:10:00-07:00');   // Sep 5, 4:10 PM MST
+    const INTERP_START = new Date('2026-07-28T21:00:00-05:00');  // "now" = 7/28 9:00 PM CDT
+    const INTERP_END = new Date('2026-08-18T18:10:00-05:00');    // Aug 18, 6:10 PM CDT
+
+    function getInterpolatedArrival() {
+      const now = new Date();
+      let fraction = (now - INTERP_START) / (INTERP_END - INTERP_START);
+      fraction = Math.max(0, Math.min(1, fraction));
+      const interpolatedMs = OLD_ARRIVAL.getTime() + (NEW_ARRIVAL.getTime() - OLD_ARRIVAL.getTime()) * fraction;
+      return new Date(interpolatedMs);
+    }
 
     // Load configuration from config.json
     async function loadConfig() {
       try {
         const response = await fetch('https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/config.json');
         const config = await response.json();
-        countdown.end = new Date(`${config.returnDate}T${config.returnTime}:00-07:00`);
+        // NOTE: arrival is currently governed by the interpolation above,
+        // not by config.json, while the transition is in progress.
         updateArrivalDisplay();
       } catch (error) {
         console.error('Failed to load config:', error);
@@ -415,13 +433,11 @@
       }
     }
 
-    // Load saved end date from localStorage (manual edits override config)
+    // Manual overrides (localStorage) are disabled while the automatic
+    // interpolation transition is active - the arrival is fully automatic
+    // during this period, so a stale saved edit shouldn't fight it.
     function loadSavedDate() {
-      const saved = localStorage.getItem('arrivalDateTime');
-      if (saved) {
-        countdown.end = new Date(saved);
-      }
-      updateArrivalDisplay();
+      // no-op during interpolation transition
     }
 
     // Get date/time components as they are in Arizona, regardless of device timezone
@@ -444,44 +460,24 @@
       document.getElementById('arrivalTime').textContent = timeStr;
     }
 
-    // Edit date
+    // Edit date - disabled during the automatic interpolation transition
+    // (any edit would be overwritten on the next 100ms tick anyway)
     document.getElementById('arrivalDate').addEventListener('click', () => {
-      const azParts = getAZParts(countdown.end);
-      const newDate = prompt('Enter new arrival date (MM/DD/YYYY):', `${azParts.month}/${azParts.day}/${azParts.year}`);
-      if (newDate) {
-        const [month, day, year] = newDate.split('/');
-        if (month && day && year) {
-          countdown.end = new Date(`${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}T${azParts.hour}:${azParts.minute}:00-07:00`);
-          localStorage.setItem('arrivalDateTime', countdown.end.toISOString());
-          updateArrivalDisplay();
-        }
-      }
+      alert('Arrival is currently transitioning automatically (interpolating to the new date/time). Manual editing is disabled until the transition completes on 8/18.');
     });
 
-    // Edit time
+    // Edit time - disabled during the automatic interpolation transition
     document.getElementById('arrivalTime').addEventListener('click', () => {
-      const azParts = getAZParts(countdown.end);
-      const newTime = prompt('Enter new arrival time (HH:MM AM/PM):', countdown.end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Phoenix' }));
-      if (newTime) {
-        const timeParts = newTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
-        if (timeParts) {
-          let hour = parseInt(timeParts[1]);
-          const minute = parseInt(timeParts[2]);
-          const period = timeParts[3].toUpperCase();
-          
-          if (period === 'PM' && hour !== 12) hour += 12;
-          if (period === 'AM' && hour === 12) hour = 0;
-          
-          countdown.end = new Date(`${azParts.year}-${azParts.month}-${azParts.day}T${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}:00-07:00`);
-          localStorage.setItem('arrivalDateTime', countdown.end.toISOString());
-          updateArrivalDisplay();
-        }
-      }
+      alert('Arrival is currently transitioning automatically (interpolating to the new date/time). Manual editing is disabled until the transition completes on 8/18.');
     });
 
     function updateScreen() {
       const now = new Date();
-      
+
+      // Arrival slides automatically along the interpolation line
+      countdown.end = getInterpolatedArrival();
+      updateArrivalDisplay();
+
       const elapsedMs = now - countdown.start;
       const elapsedSeconds = Math.floor(elapsedMs / 1000);
       const daysSince = elapsedSeconds / 86400;  // Decimal days
