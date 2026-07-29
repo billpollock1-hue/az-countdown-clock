@@ -250,11 +250,26 @@
   <script>
     // Countdown configuration
     const departureTime = new Date('2026-06-03T08:50:00-07:00').getTime();
-    const arrivalTime = new Date('2026-09-10T19:00:00-07:00').getTime(); // 7 PM MST
-    const totalTime = arrivalTime - departureTime;
+
+    // --- Arrival date/time linear interpolation (matches index.html) ---
+    // The arrival slides smoothly from OLD to NEW between INTERP_START and
+    // INTERP_END, then stays fixed at NEW after that.
+    const OLD_ARRIVAL = new Date('2026-09-10T19:00:00-07:00').getTime();   // Sep 10, 7:00 PM MST
+    const NEW_ARRIVAL = new Date('2026-09-05T16:10:00-07:00').getTime();  // Sep 5, 4:10 PM MST
+    const INTERP_START = new Date('2026-07-28T21:00:00-05:00').getTime(); // 7/28 9:00 PM CDT
+    const INTERP_END = new Date('2026-08-18T18:10:00-05:00').getTime();   // 8/18 6:10 PM CDT
+
+    function getInterpolatedArrival() {
+      const now = new Date().getTime();
+      let fraction = (now - INTERP_START) / (INTERP_END - INTERP_START);
+      fraction = Math.max(0, Math.min(1, fraction));
+      return OLD_ARRIVAL + (NEW_ARRIVAL - OLD_ARRIVAL) * fraction;
+    }
 
     function updateProgress() {
       const now = new Date().getTime();
+      const arrivalTime = getInterpolatedArrival();
+      const totalTime = arrivalTime - departureTime;
       const elapsed = now - departureTime;
       const remaining = arrivalTime - now;
       
