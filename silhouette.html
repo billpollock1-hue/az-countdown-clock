@@ -251,19 +251,28 @@
     // Countdown configuration
     const departureTime = new Date('2026-06-03T08:50:00-07:00').getTime();
 
-    // --- Arrival date/time linear interpolation (matches index.html) ---
-    // The arrival slides smoothly from OLD to NEW between INTERP_START and
-    // INTERP_END, then stays fixed at NEW after that.
-    const OLD_ARRIVAL = new Date('2026-09-10T14:04:40-07:00').getTime();   // in-progress value at 5:05 PM CDT 7/29 (NOT the original 7:00 PM - avoids jumping backward in progress)
-    const NEW_ARRIVAL = new Date('2026-09-05T16:10:00-07:00').getTime();  // Sep 5, 4:10 PM MST
-    const INTERP_START = new Date('2026-07-29T17:05:00-05:00').getTime(); // 7/29 5:05 PM CDT
-    const INTERP_END = new Date('2026-08-05T18:10:00-05:00').getTime();   // 8/5 6:10 PM CDT
+    // --- Arrival date/time step schedule (matches index.html) ---
+    // The return date jumps instantly to a new fixed value at each
+    // scheduled trigger time (4:10 PM MST each day), instead of sliding.
+    const ARRIVAL_SCHEDULE = [
+      { at: null,                                            value: new Date('2026-09-09T16:10:00-07:00').getTime() },
+      { at: new Date('2026-07-30T16:10:00-07:00').getTime(), value: new Date('2026-09-08T16:10:00-07:00').getTime() },
+      { at: new Date('2026-07-31T16:10:00-07:00').getTime(), value: new Date('2026-09-07T16:10:00-07:00').getTime() },
+      { at: new Date('2026-08-01T16:10:00-07:00').getTime(), value: new Date('2026-09-06T16:10:00-07:00').getTime() },
+      { at: new Date('2026-08-02T16:10:00-07:00').getTime(), value: new Date('2026-09-05T16:10:00-07:00').getTime() },
+      { at: new Date('2026-08-03T16:10:00-07:00').getTime(), value: new Date('2026-09-04T16:10:00-07:00').getTime() },
+      { at: new Date('2026-08-04T16:10:00-07:00').getTime(), value: new Date('2026-09-03T16:10:00-07:00').getTime() }
+    ];
 
     function getInterpolatedArrival() {
       const now = new Date().getTime();
-      let fraction = (now - INTERP_START) / (INTERP_END - INTERP_START);
-      fraction = Math.max(0, Math.min(1, fraction));
-      return OLD_ARRIVAL + (NEW_ARRIVAL - OLD_ARRIVAL) * fraction;
+      let current = ARRIVAL_SCHEDULE[0].value;
+      for (let i = 1; i < ARRIVAL_SCHEDULE.length; i++) {
+        if (now >= ARRIVAL_SCHEDULE[i].at) {
+          current = ARRIVAL_SCHEDULE[i].value;
+        }
+      }
+      return current;
     }
 
     function updateProgress() {
