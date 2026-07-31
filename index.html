@@ -394,7 +394,7 @@
         <!-- Temporarily removed - View Silhouette link
         <a class="view-toggle-link" href="silhouette.html" onclick="this.href='silhouette.html?t='+Date.now()">View Silhouette →</a>
         -->
-        <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">v2026-07-31-5</div>
+        <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">v2026-07-31-6</div>
       </div>
     </div>
   </div>
@@ -578,12 +578,26 @@
         return `https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/${num}.jpg`;
       }
 
+      const STATE_KEY = 'photoRotationState';
+
+      function loadState() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STATE_KEY));
+          if (saved && Array.isArray(saved.order) && saved.order.length === TOTAL_PHOTOS) {
+            return saved;
+          }
+        } catch (e) { /* fall through to fresh state */ }
+        return { order: freshOrder(), orderIndex: 0, repeatCount: 0 };
+      }
+
+      function saveState() {
+        localStorage.setItem(STATE_KEY, JSON.stringify({ order, orderIndex, repeatCount }));
+      }
+
       const photos = document.querySelectorAll('.floating-image');
       const images = Array.from(photos).map(p => p.querySelector('img')).filter(Boolean);
 
-      let order = freshOrder();
-      let orderIndex = 0;
-      let repeatCount = 0;
+      let { order, orderIndex, repeatCount } = loadState();
 
       function setAllPhotos() {
         const url = photoUrl(order[orderIndex]);
@@ -604,6 +618,7 @@
             }
             setAllPhotos();
           }
+          saveState();
         });
       }
       
