@@ -391,8 +391,10 @@
           </div>
         </div>
         <button class="toggle-photos-btn" id="togglePhotosBtn">Hide Photos</button>
+        <!-- Temporarily removed - View Silhouette link
         <a class="view-toggle-link" href="silhouette.html" onclick="this.href='silhouette.html?t='+Date.now()">View Silhouette →</a>
-        <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">v2026-07-31-2</div>
+        -->
+        <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">v2026-07-31-3</div>
       </div>
     </div>
   </div>
@@ -548,13 +550,14 @@
       updatePhotosVisibility();
     });
 
-    // Continuously-refilling shuffled "deck" of all 25 photos.
-    // Each floating slot draws its next photo from the deck every time
-    // its own float animation loops back to the start. Once all 25 have
-    // been drawn (one full randomized pass through the whole set), the
-    // deck reshuffles and a fresh randomized pass begins - forever.
+    // Continuously-refilling shuffled "deck" of all 34 photos.
+    // Each floating slot holds its current photo for a fixed 40 seconds,
+    // then draws its next photo from the deck. Once all 34 have been
+    // drawn (one full randomized pass through the whole set), the deck
+    // reshuffles and a fresh randomized pass begins - forever.
     window.addEventListener('DOMContentLoaded', () => {
       const TOTAL_PHOTOS = 34;
+      const HOLD_DURATION_MS = 40000;
       let deck = [];
 
       function shuffle(arr) {
@@ -583,9 +586,9 @@
         const img = photo.querySelector('img');
         if (!img) return;
         img.src = nextPhotoUrl();
-        photo.addEventListener('animationiteration', () => {
+        setInterval(() => {
           img.src = nextPhotoUrl();
-        });
+        }, HOLD_DURATION_MS);
       });
       
     });
