@@ -394,7 +394,7 @@
         <!-- Temporarily removed - View Silhouette link
         <a class="view-toggle-link" href="silhouette.html" onclick="this.href='silhouette.html?t='+Date.now()">View Silhouette →</a>
         -->
-        <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">v2026-07-31-4</div>
+        <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">v2026-07-31-5</div>
       </div>
     </div>
   </div>
@@ -550,13 +550,13 @@
       updatePhotosVisibility();
     });
 
-    // Shuffled order of all 34 photos. Each floating slot shows the SAME
-    // photo for 25 repetitions of its own float-animation loop, then
-    // advances to the next photo in the shuffled order. Once a slot has
-    // gone through all 34, the order reshuffles and a fresh randomized
-    // pass begins - forever. Each slot progresses independently through
-    // its own copy of the shuffled order (their staggered animation
-    // timing means they won't all be on the same photo at once).
+    // Shuffled order of all 34 photos, shared across ALL floating slots.
+    // Every slot shows the SAME photo simultaneously, for 25 repetitions
+    // of the animation loop, then all slots advance together to the next
+    // photo in the shared shuffled order. Once the whole set of 34 has
+    // been shown, the order reshuffles and a fresh randomized pass begins
+    // - forever. The first slot's animation loop acts as the shared
+    // "clock" driving when everyone advances together.
     window.addEventListener('DOMContentLoaded', () => {
       const TOTAL_PHOTOS = 34;
       const REPEATS_PER_PHOTO = 25;
@@ -579,17 +579,21 @@
       }
 
       const photos = document.querySelectorAll('.floating-image');
-      photos.forEach((photo) => {
-        const img = photo.querySelector('img');
-        if (!img) return;
+      const images = Array.from(photos).map(p => p.querySelector('img')).filter(Boolean);
 
-        let order = freshOrder();
-        let orderIndex = 0;
-        let repeatCount = 0;
+      let order = freshOrder();
+      let orderIndex = 0;
+      let repeatCount = 0;
 
-        img.src = photoUrl(order[orderIndex]);
+      function setAllPhotos() {
+        const url = photoUrl(order[orderIndex]);
+        images.forEach(img => { img.src = url; });
+      }
 
-        photo.addEventListener('animationiteration', () => {
+      setAllPhotos();
+
+      if (photos.length > 0) {
+        photos[0].addEventListener('animationiteration', () => {
           repeatCount++;
           if (repeatCount >= REPEATS_PER_PHOTO) {
             repeatCount = 0;
@@ -598,10 +602,10 @@
               order = freshOrder();
               orderIndex = 0;
             }
-            img.src = photoUrl(order[orderIndex]);
+            setAllPhotos();
           }
         });
-      });
+      }
       
     });
   </script>
