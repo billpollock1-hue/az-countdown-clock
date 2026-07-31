@@ -13,15 +13,13 @@
 
     body {
       width: 100vw;
-      height: 100vh;
-      height: 100dvh;
+      min-height: 100dvh;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      overflow: hidden;
-      padding-top: env(safe-area-inset-top);
+      padding-top: max(2rem, env(safe-area-inset-top));
     }
 
     .container {
@@ -29,10 +27,8 @@
       flex-direction: column;
       align-items: center;
       gap: 26px;
-      padding: 14px;
+      padding: 14px 14px 40px 14px;
       max-width: 100%;
-      height: 100%;
-      justify-content: center;
     }
 
     .title {
