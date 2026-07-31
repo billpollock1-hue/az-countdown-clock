@@ -394,7 +394,7 @@
         <!-- Temporarily removed - View Silhouette link
         <a class="view-toggle-link" href="silhouette.html" onclick="this.href='silhouette.html?t='+Date.now()">View Silhouette →</a>
         -->
-        <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">v2026-07-31-3</div>
+        <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">v2026-07-31-4</div>
       </div>
     </div>
   </div>
@@ -550,15 +550,16 @@
       updatePhotosVisibility();
     });
 
-    // Continuously-refilling shuffled "deck" of all 34 photos.
-    // Each floating slot holds its current photo for a fixed 40 seconds,
-    // then draws its next photo from the deck. Once all 34 have been
-    // drawn (one full randomized pass through the whole set), the deck
-    // reshuffles and a fresh randomized pass begins - forever.
+    // Shuffled order of all 34 photos. Each floating slot shows the SAME
+    // photo for 25 repetitions of its own float-animation loop, then
+    // advances to the next photo in the shuffled order. Once a slot has
+    // gone through all 34, the order reshuffles and a fresh randomized
+    // pass begins - forever. Each slot progresses independently through
+    // its own copy of the shuffled order (their staggered animation
+    // timing means they won't all be on the same photo at once).
     window.addEventListener('DOMContentLoaded', () => {
       const TOTAL_PHOTOS = 34;
-      const HOLD_DURATION_MS = 40000;
-      let deck = [];
+      const REPEATS_PER_PHOTO = 25;
 
       function shuffle(arr) {
         for (let i = arr.length - 1; i > 0; i--) {
@@ -568,27 +569,38 @@
         return arr;
       }
 
-      function refillDeck() {
+      function freshOrder() {
         const nums = Array.from({ length: TOTAL_PHOTOS }, (_, i) => String(i + 1).padStart(2, '0'));
-        deck = shuffle(nums);
+        return shuffle(nums);
       }
 
-      function nextPhotoUrl() {
-        if (deck.length === 0) refillDeck();
-        const num = deck.pop();
+      function photoUrl(num) {
         return `https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/${num}.jpg`;
       }
-
-      refillDeck();
 
       const photos = document.querySelectorAll('.floating-image');
       photos.forEach((photo) => {
         const img = photo.querySelector('img');
         if (!img) return;
-        img.src = nextPhotoUrl();
-        setInterval(() => {
-          img.src = nextPhotoUrl();
-        }, HOLD_DURATION_MS);
+
+        let order = freshOrder();
+        let orderIndex = 0;
+        let repeatCount = 0;
+
+        img.src = photoUrl(order[orderIndex]);
+
+        photo.addEventListener('animationiteration', () => {
+          repeatCount++;
+          if (repeatCount >= REPEATS_PER_PHOTO) {
+            repeatCount = 0;
+            orderIndex++;
+            if (orderIndex >= order.length) {
+              order = freshOrder();
+              orderIndex = 0;
+            }
+            img.src = photoUrl(order[orderIndex]);
+          }
+        });
       });
       
     });
