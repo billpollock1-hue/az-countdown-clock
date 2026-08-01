@@ -240,7 +240,7 @@
     </div>
 
     <a class="view-toggle-link" href="index.html" onclick="this.href='index.html?t='+Date.now()">← Back to Countdown</a>
-    <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 4px;">v2026-07-31-9</div>
+    <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 4px;">v2026-08-01-1</div>
   </div>
 
   <script>
@@ -291,7 +291,7 @@
       document.getElementById('annotationPercent').textContent = percentCompleted.toFixed(2) + '%';
       
       // Update days left
-      const daysLeft = Math.ceil(remaining / (1000 * 60 * 60 * 24));
+      const daysLeft = Math.round(remaining / (1000 * 60 * 60 * 24));
       document.getElementById('daysLeft').textContent = Math.max(0, daysLeft) + ' days left';
       
       // Update arrival date
