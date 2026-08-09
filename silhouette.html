@@ -56,7 +56,6 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-image: url('https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Pool.jpg');
       background-size: cover;
       background-position: center;
       z-index: 1;
@@ -81,9 +80,26 @@
       left: 0;
       width: 175px;
       height: 380px;
-      background-image: url('https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/PoolOutline.png');
       background-size: cover;
       background-position: center;
+    }
+
+    .photo-select-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.15);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .photo-select-btn.active {
+      background: #7fff00;
+      color: #1a1a1a;
+      border-color: #7fff00;
     }
 
     .progress-info {
@@ -219,9 +235,9 @@
       </div>
 
       <div class="silhouette-wrapper">
-        <div class="photo-full"></div>
+        <div class="photo-full" id="photoFull"></div>
         <div class="outline-reveal" id="outlineReveal">
-          <div class="outline-image"></div>
+          <div class="outline-image" id="outlineImage"></div>
         </div>
       </div>
 
@@ -229,6 +245,12 @@
         <div class="annotation-arrow"></div>
         <div class="annotation-box"><span id="annotationPercent">0.00%</span></div>
       </div>
+    </div>
+
+    <div id="photoSelector" style="display: flex; gap: 8px; margin-top: -4px;">
+      <button class="photo-select-btn" data-index="0">1</button>
+      <button class="photo-select-btn" data-index="1">2</button>
+      <button class="photo-select-btn" data-index="2">3</button>
     </div>
 
     <div class="progress-info">
@@ -239,9 +261,12 @@
       Arriving: <span id="arrivalDate">Sep 10, 7:00 PM MST</span>
     </div>
 
-    <button id="toggleEarlyReturnBtn" class="view-toggle-link" style="background: rgba(255, 200, 0, 0.25); border-color: rgba(255,200,0,0.6); cursor: pointer; font: inherit;">Early Return: OFF</button>
+    <label style="display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 6px; cursor: pointer;">
+      <input type="checkbox" id="earlyReturnCheckbox" style="width: 13px; height: 13px; cursor: pointer;">
+      Early return (9/1 8:45 AM)
+    </label>
     <a class="view-toggle-link" href="index.html" onclick="this.href='index.html?t='+Date.now()">← Back to Countdown</a>
-    <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 4px;">v2026-08-01-2</div>
+    <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 4px;">v2026-08-01-3</div>
   </div>
 
   <script>
@@ -312,25 +337,58 @@
     // Update every 100ms for smooth animation
     setInterval(updateProgress, 100);
 
+    // Photo selector: switch between multiple photo+outline pairs
+    window.addEventListener('DOMContentLoaded', () => {
+      const PHOTO_OPTIONS = [
+        {
+          photo: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Pool.jpg',
+          outline: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/PoolOutline.png'
+        },
+        {
+          photo: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Silhouette2.jpg',
+          outline: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Silhouette2Outline.png'
+        },
+        {
+          photo: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Silhouette3.jpg',
+          outline: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Silhouette3Outline.png'
+        }
+      ];
+
+      const photoFull = document.getElementById('photoFull');
+      const outlineImage = document.getElementById('outlineImage');
+      const buttons = document.querySelectorAll('.photo-select-btn');
+
+      function applySelection(index) {
+        const opt = PHOTO_OPTIONS[index];
+        if (!opt) return;
+        photoFull.style.backgroundImage = `url('${opt.photo}')`;
+        outlineImage.style.backgroundImage = `url('${opt.outline}')`;
+        buttons.forEach(b => b.classList.toggle('active', parseInt(b.dataset.index) === index));
+        localStorage.setItem('selectedPhotoIndex', index);
+      }
+
+      let saved = parseInt(localStorage.getItem('selectedPhotoIndex'));
+      if (isNaN(saved) || saved < 0 || saved >= PHOTO_OPTIONS.length) saved = 0;
+      applySelection(saved);
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          applySelection(parseInt(btn.dataset.index));
+        });
+      });
+    });
+
+
     // Toggle early return override
     window.addEventListener('DOMContentLoaded', () => {
-      const earlyBtn = document.getElementById('toggleEarlyReturnBtn');
-      if (!earlyBtn) return;
+      const earlyCheckbox = document.getElementById('earlyReturnCheckbox');
+      if (!earlyCheckbox) return;
 
-      let earlyReturn = localStorage.getItem('earlyReturn') === 'true';
+      earlyCheckbox.checked = localStorage.getItem('earlyReturn') === 'true';
 
-      const updateEarlyReturnLabel = () => {
-        earlyBtn.textContent = earlyReturn ? 'Early Return: ON (9/1 8:45 AM)' : 'Early Return: OFF';
-        localStorage.setItem('earlyReturn', earlyReturn);
-      };
-
-      earlyBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        earlyReturn = !earlyReturn;
-        updateEarlyReturnLabel();
+      earlyCheckbox.addEventListener('change', () => {
+        localStorage.setItem('earlyReturn', earlyCheckbox.checked);
       });
-
-      updateEarlyReturnLabel();
     });
 
     // Auto-reload every 5 minutes so any already-open tab can never run

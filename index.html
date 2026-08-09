@@ -391,9 +391,12 @@
           </div>
         </div>
         <button class="toggle-photos-btn" id="togglePhotosBtn">Hide Photos</button>
-        <button class="toggle-photos-btn" id="toggleEarlyReturnBtn" style="margin-top: 0.6rem; background: rgba(255, 200, 0, 0.9);">Early Return: OFF</button>
+        <label style="display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 0.6rem; cursor: pointer;">
+          <input type="checkbox" id="earlyReturnCheckbox" style="width: 13px; height: 13px; cursor: pointer;">
+          Early return (9/1 8:45 AM)
+        </label>
         <a class="view-toggle-link" href="silhouette.html" onclick="this.href='silhouette.html?t='+Date.now()">View Silhouette →</a>
-        <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">v2026-08-01-2</div>
+        <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">v2026-08-01-3</div>
       </div>
     </div>
   </div>
@@ -559,23 +562,14 @@
 
     // Toggle early return override
     window.addEventListener('DOMContentLoaded', () => {
-      const earlyBtn = document.getElementById('toggleEarlyReturnBtn');
-      if (!earlyBtn) return;
+      const earlyCheckbox = document.getElementById('earlyReturnCheckbox');
+      if (!earlyCheckbox) return;
 
-      let earlyReturn = localStorage.getItem('earlyReturn') === 'true';
+      earlyCheckbox.checked = localStorage.getItem('earlyReturn') === 'true';
 
-      const updateEarlyReturnLabel = () => {
-        earlyBtn.textContent = earlyReturn ? 'Early Return: ON (9/1 8:45 AM)' : 'Early Return: OFF';
-        localStorage.setItem('earlyReturn', earlyReturn);
-      };
-
-      earlyBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        earlyReturn = !earlyReturn;
-        updateEarlyReturnLabel();
+      earlyCheckbox.addEventListener('change', () => {
+        localStorage.setItem('earlyReturn', earlyCheckbox.checked);
       });
-
-      updateEarlyReturnLabel();
     });
 
     // Shuffled order of all 34 photos, shared across ALL floating slots.
