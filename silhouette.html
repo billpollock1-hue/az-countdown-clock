@@ -239,8 +239,9 @@
       Arriving: <span id="arrivalDate">Sep 10, 7:00 PM MST</span>
     </div>
 
+    <button id="toggleEarlyReturnBtn" class="view-toggle-link" style="background: rgba(255, 200, 0, 0.25); border-color: rgba(255,200,0,0.6); cursor: pointer; font: inherit;">Early Return: OFF</button>
     <a class="view-toggle-link" href="index.html" onclick="this.href='index.html?t='+Date.now()">← Back to Countdown</a>
-    <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 4px;">v2026-08-01-1</div>
+    <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 4px;">v2026-08-01-2</div>
   </div>
 
   <script>
@@ -260,7 +261,12 @@
       { at: new Date('2026-07-30T00:00:00-07:00').getTime(), value: new Date('2026-09-01T16:10:00-07:00').getTime() }
     ];
 
+    const EARLY_RETURN_VALUE = new Date('2026-09-01T08:45:00-07:00').getTime();
+
     function getInterpolatedArrival() {
+      if (localStorage.getItem('earlyReturn') === 'true') {
+        return EARLY_RETURN_VALUE;
+      }
       const now = new Date().getTime();
       let current = ARRIVAL_SCHEDULE[0].value;
       for (let i = 1; i < ARRIVAL_SCHEDULE.length; i++) {
@@ -305,6 +311,27 @@
     
     // Update every 100ms for smooth animation
     setInterval(updateProgress, 100);
+
+    // Toggle early return override
+    window.addEventListener('DOMContentLoaded', () => {
+      const earlyBtn = document.getElementById('toggleEarlyReturnBtn');
+      if (!earlyBtn) return;
+
+      let earlyReturn = localStorage.getItem('earlyReturn') === 'true';
+
+      const updateEarlyReturnLabel = () => {
+        earlyBtn.textContent = earlyReturn ? 'Early Return: ON (9/1 8:45 AM)' : 'Early Return: OFF';
+        localStorage.setItem('earlyReturn', earlyReturn);
+      };
+
+      earlyBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        earlyReturn = !earlyReturn;
+        updateEarlyReturnLabel();
+      });
+
+      updateEarlyReturnLabel();
+    });
 
     // Auto-reload every 5 minutes so any already-open tab can never run
     // stale JS for long after a deploy.
