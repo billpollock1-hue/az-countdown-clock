@@ -245,7 +245,7 @@
       Early return (9/1 8:45 AM)
     </label>
     <a class="view-toggle-link" href="index.html" onclick="this.href='index.html?t='+Date.now()">← Back to Countdown</a>
-    <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 4px;">v2026-08-01-6</div>
+    <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 4px;">v2026-08-01-7</div>
   </div>
 
   <script>
@@ -345,7 +345,7 @@
         }
       ];
 
-      const ROTATE_MS = 2000;
+      const ROTATE_MS = 6000;
       const MAX_W = 220;
       const MAX_H = 380;
       const LEFT_BUFFER = 20;   // small left margin, balances against the annotation space on the right
@@ -357,6 +357,18 @@
       const stage = document.querySelector('.silhouette-stage');
       const annotation = document.getElementById('annotation');
       const axis = document.querySelector('.axis');
+
+      function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      function freshOrder() {
+        return shuffle(PHOTO_OPTIONS.map((_, i) => i));
+      }
 
       function fitDimensions(ratio) {
         // Try full height first; if that makes it too wide, constrain by width instead.
@@ -385,12 +397,19 @@
         axis.style.left = (LEFT_BUFFER + w) + 'px';
       }
 
-      let currentIndex = 0;
-      applySelection(currentIndex);
+      // Random order through all 4 photos, reshuffling once the full set
+      // has been shown, so it never repeats a photo until all 4 appeared.
+      let order = freshOrder();
+      let orderPos = 0;
+      applySelection(order[orderPos]);
 
       setInterval(() => {
-        currentIndex = (currentIndex + 1) % PHOTO_OPTIONS.length;
-        applySelection(currentIndex);
+        orderPos++;
+        if (orderPos >= order.length) {
+          order = freshOrder();
+          orderPos = 0;
+        }
+        applySelection(order[orderPos]);
       }, ROTATE_MS);
     });
 
