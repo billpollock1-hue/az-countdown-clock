@@ -43,6 +43,7 @@
       position: relative;
       width: 175px;
       height: 380px;
+      margin-left: 20px;
       border: 3px solid white;
       border-radius: 20px;
       overflow: hidden;
@@ -82,24 +83,6 @@
       height: 380px;
       background-size: cover;
       background-position: center;
-    }
-
-    .photo-select-btn {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(255,255,255,0.5);
-      background: rgba(255,255,255,0.15);
-      color: white;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .photo-select-btn.active {
-      background: #7fff00;
-      color: #1a1a1a;
-      border-color: #7fff00;
     }
 
     .progress-info {
@@ -247,11 +230,7 @@
       </div>
     </div>
 
-    <div id="photoSelector" style="display: flex; gap: 8px; margin-top: -4px;">
-      <button class="photo-select-btn" data-index="0">1</button>
-      <button class="photo-select-btn" data-index="1">2</button>
-      <button class="photo-select-btn" data-index="2">3</button>
-    </div>
+
 
     <div class="progress-info">
       <div id="daysLeft">--- days</div>
@@ -266,7 +245,7 @@
       Early return (9/1 8:45 AM)
     </label>
     <a class="view-toggle-link" href="index.html" onclick="this.href='index.html?t='+Date.now()">← Back to Countdown</a>
-    <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 4px;">v2026-08-01-3</div>
+    <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 4px;">v2026-08-01-6</div>
   </div>
 
   <script>
@@ -337,45 +316,82 @@
     // Update every 100ms for smooth animation
     setInterval(updateProgress, 100);
 
-    // Photo selector: switch between multiple photo+outline pairs
+    // Photo auto-rotation: cycles through all 4 photos every 2 seconds
     window.addEventListener('DOMContentLoaded', () => {
+      // Each photo's actual pixel dimensions, used to compute a box that
+      // exactly matches its aspect ratio - so "cover" never has to crop
+      // anything, every photo is shown in full. Capped to a max width/height
+      // so wider or taller photos can't overflow the screen.
       const PHOTO_OPTIONS = [
         {
           photo: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Pool.jpg',
-          outline: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/PoolOutline.png'
+          outline: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/PoolOutline.png',
+          ratio: 592 / 1364
         },
         {
           photo: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Silhouette2.jpg',
-          outline: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Silhouette2Outline.png'
+          outline: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Silhouette2Outline.png',
+          ratio: 1348 / 1278
         },
         {
           photo: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Silhouette3.jpg',
-          outline: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Silhouette3Outline.png'
+          outline: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Silhouette3Outline.png',
+          ratio: 768 / 1024
+        },
+        {
+          photo: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Silhouette4.jpg',
+          outline: 'https://raw.githubusercontent.com/billpollock1-hue/az-countdown-clock/main/Silhouette4Outline.png',
+          ratio: 1004 / 1142
         }
       ];
 
+      const ROTATE_MS = 2000;
+      const MAX_W = 220;
+      const MAX_H = 380;
+      const LEFT_BUFFER = 20;   // small left margin, balances against the annotation space on the right
+      const RIGHT_RESERVED = 96; // room for axis + annotation
+
       const photoFull = document.getElementById('photoFull');
       const outlineImage = document.getElementById('outlineImage');
-      const buttons = document.querySelectorAll('.photo-select-btn');
+      const wrapper = document.querySelector('.silhouette-wrapper');
+      const stage = document.querySelector('.silhouette-stage');
+      const annotation = document.getElementById('annotation');
+      const axis = document.querySelector('.axis');
+
+      function fitDimensions(ratio) {
+        // Try full height first; if that makes it too wide, constrain by width instead.
+        let h = MAX_H;
+        let w = h * ratio;
+        if (w > MAX_W) {
+          w = MAX_W;
+          h = w / ratio;
+        }
+        return { w: Math.round(w), h: Math.round(h) };
+      }
 
       function applySelection(index) {
         const opt = PHOTO_OPTIONS[index];
         if (!opt) return;
         photoFull.style.backgroundImage = `url('${opt.photo}')`;
         outlineImage.style.backgroundImage = `url('${opt.outline}')`;
-        buttons.forEach(b => b.classList.toggle('active', parseInt(b.dataset.index) === index));
-        localStorage.setItem('selectedPhotoIndex', index);
+
+        const { w, h } = fitDimensions(opt.ratio);
+        wrapper.style.width = w + 'px';
+        wrapper.style.height = h + 'px';
+        outlineImage.style.width = w + 'px';
+        outlineImage.style.height = h + 'px';
+        stage.style.width = (w + LEFT_BUFFER + RIGHT_RESERVED) + 'px';
+        annotation.style.left = (LEFT_BUFFER + w) + 'px';
+        axis.style.left = (LEFT_BUFFER + w) + 'px';
       }
 
-      let saved = parseInt(localStorage.getItem('selectedPhotoIndex'));
-      if (isNaN(saved) || saved < 0 || saved >= PHOTO_OPTIONS.length) saved = 0;
-      applySelection(saved);
+      let currentIndex = 0;
+      applySelection(currentIndex);
 
-      buttons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          applySelection(parseInt(btn.dataset.index));
-        });
-      });
+      setInterval(() => {
+        currentIndex = (currentIndex + 1) % PHOTO_OPTIONS.length;
+        applySelection(currentIndex);
+      }, ROTATE_MS);
     });
 
 
