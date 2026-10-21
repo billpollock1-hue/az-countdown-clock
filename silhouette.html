@@ -240,17 +240,13 @@
       Arriving: <span id="arrivalDate">Sep 10, 7:00 PM MST</span>
     </div>
 
-    <label style="display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 6px; cursor: pointer;">
-      <input type="checkbox" id="earlyReturnCheckbox" style="width: 13px; height: 13px; cursor: pointer;">
-      Early return (9/1 8:45 AM)
-    </label>
     <a class="view-toggle-link" href="index.html" onclick="this.href='index.html?t='+Date.now()">← Back to Countdown</a>
-    <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 4px;">v2026-08-01-7</div>
+    <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 4px;">v2026-10-20-2</div>
   </div>
 
   <script>
     // Countdown configuration
-    const departureTime = new Date('2026-06-03T08:50:00-07:00').getTime();
+    const departureTime = new Date('2026-10-08T08:35:00-07:00').getTime();
 
     // --- Arrival date/time step schedule (matches index.html) ---
     // The return date jumps instantly to a new fixed value at each
@@ -265,10 +261,10 @@
       { at: new Date('2026-07-30T00:00:00-07:00').getTime(), value: new Date('2026-09-01T16:10:00-07:00').getTime() }
     ];
 
-    const EARLY_RETURN_VALUE = new Date('2026-09-01T08:45:00-07:00').getTime();
+    const EARLY_RETURN_VALUE = new Date('2026-10-26T07:05:00-07:00').getTime();
 
     function getInterpolatedArrival() {
-      if (localStorage.getItem('earlyReturn') === 'true') {
+      if (true) { // arrival is always the fixed value above
         return EARLY_RETURN_VALUE;
       }
       const now = new Date().getTime();
