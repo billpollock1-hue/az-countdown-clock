@@ -356,7 +356,7 @@
         
         <div class="progress-section">
           <div class="progress-title">Progress</div>
-          <div class="progress-percentage" id="progressPercentAZ">0.00000%</div>
+          <div class="progress-percentage" id="progressPercentAZ">0.0000%</div>
           <div class="progress-pie" id="progressPieAZ">
             <div class="progress-pie-inner"></div>
           </div>
@@ -377,7 +377,7 @@
           </div>
         </div>
         <a class="view-toggle-link" href="silhouette.html" onclick="this.href='silhouette.html?t='+Date.now()">View Silhouette →</a>
-        <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">v2026-10-22-3</div>
+        <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">v2026-10-22-4</div>
       </div>
     </div>
   </div>
@@ -487,7 +487,7 @@
       document.getElementById('daysToAZ').textContent = daysTo.toFixed(1);
       
       const pct = Math.max(0, Math.min(elapsedPct, 100));
-      document.getElementById('progressPercentAZ').textContent = `${pct.toFixed(5)}%`;
+      document.getElementById('progressPercentAZ').textContent = `${pct.toFixed(4)}%`;
       document.getElementById('progressPieAZ').style.background = `conic-gradient(#7fd900 ${pct}%, rgba(255,255,255,0.15) ${pct}%)`;
     }
 
