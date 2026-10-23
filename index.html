@@ -376,8 +376,25 @@
             <div class="arrival-unit">days</div>
           </div>
         </div>
+        <div class="arrival-section" style="grid-template-columns: 1fr 1fr 1fr;">
+          <div class="arrival-box">
+            <div class="arrival-label">Hours</div>
+            <div class="arrival-value" id="hoursLeftAZ">0</div>
+            <div class="arrival-unit">hrs</div>
+          </div>
+          <div class="arrival-box">
+            <div class="arrival-label">Minutes</div>
+            <div class="arrival-value" id="minutesLeftAZ">0</div>
+            <div class="arrival-unit">min</div>
+          </div>
+          <div class="arrival-box">
+            <div class="arrival-label">Seconds</div>
+            <div class="arrival-value" id="secondsLeftAZ">0.0</div>
+            <div class="arrival-unit">sec</div>
+          </div>
+        </div>
         <a class="view-toggle-link" href="silhouette.html" onclick="this.href='silhouette.html?t='+Date.now()">View Silhouette →</a>
-        <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">v2026-10-22-4</div>
+        <div style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">v2026-10-23-2</div>
       </div>
     </div>
   </div>
@@ -448,7 +465,7 @@
       const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Phoenix' });
       
       document.getElementById('arrivalDate').textContent = dateStr;
-      document.getElementById('arrivalTime').textContent = timeStr;
+      document.getElementById('arrivalTime').textContent = timeStr + ' MST';
     }
 
     // Edit date - disabled during the automatic interpolation transition
@@ -484,7 +501,12 @@
       
       document.getElementById('daysSinceAZ').textContent = daysSince.toFixed(1);
       
-      document.getElementById('daysToAZ').textContent = daysTo.toFixed(1);
+      // Whole days, then the leftover hours / minutes / seconds (seconds to 0.1)
+      const _tenths = Math.floor(Math.max(0, remainingMs) / 100);
+      document.getElementById('daysToAZ').textContent = Math.floor(_tenths / 864000);
+      document.getElementById('hoursLeftAZ').textContent = Math.floor(_tenths / 36000) % 24;
+      document.getElementById('minutesLeftAZ').textContent = Math.floor(_tenths / 600) % 60;
+      document.getElementById('secondsLeftAZ').textContent = ((_tenths % 600) / 10).toFixed(1);
       
       const pct = Math.max(0, Math.min(elapsedPct, 100));
       document.getElementById('progressPercentAZ').textContent = `${pct.toFixed(4)}%`;
