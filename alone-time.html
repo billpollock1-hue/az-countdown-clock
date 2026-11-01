@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0;font:14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}[hidden]{display:none!important}</style>
+<title>Possible Alone Time Left</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: a six-week wall calendar (Sun-Sat). Each day block fills from the bottom as its hours pass.
+     Nov 21-27 are crossed out; Dec 12 is hatched from 1:30 PM MST onward. */
+  :root {
+    --bg: #F3F6F7;
+    --fg: #12202A;
+    --muted: #56707C;
+    --cell: #FFFFFF;
+    --line: #D3DEE3;
+    --fill: #BFE2DD;
+    --accent: #1E7C76;
+    --x: #B4503F;
+    --hatch: rgba(86, 112, 124, 0.38);
+    --font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E151B; --fg: #E6EEF0; --muted: #8FA1A8; --cell: #16212A; --line: #243441;
+      --fill: #1F5753; --accent: #5CC6BC; --x: #E0806E; --hatch: rgba(143, 161, 168, 0.4);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E151B; --fg: #E6EEF0; --muted: #8FA1A8; --cell: #16212A; --line: #243441;
+    --fill: #1F5753; --accent: #5CC6BC; --x: #E0806E; --hatch: rgba(143, 161, 168, 0.4);
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-display);
+    padding-block: 20px 28px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+  header { display: flex; flex-direction: column; gap: 6px; }
+  .kicker { font-family: var(--font-data); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  h1 { font-size: 30px; line-height: 1.05; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+
+  .label { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .remain { font-family: var(--font-data); font-size: 12px; color: var(--muted); margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .subhead { font-size: 16px; color: var(--muted); }
+  .subhead b { font-family: var(--font-data); font-weight: 500; color: var(--fg); font-variant-numeric: tabular-nums; }
+  .count { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .big { font-family: var(--font-data); font-weight: 500; font-size: 56px; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .big-label { font-size: 15px; font-weight: 500; }
+  .sub { font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+  .live { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .live div { background: var(--cell); border: 1px solid var(--line); border-radius: 8px; padding: 8px 4px 6px; text-align: center; min-width: 0; }
+  .live b { display: block; font-family: var(--font-data); font-weight: 500; font-size: 20px; font-variant-numeric: tabular-nums; }
+  .live span { font-family: var(--font-data); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+  .dow, .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .dow span { font-family: var(--font-data); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: center; padding-bottom: 2px; }
+
+  .cell { position: relative; aspect-ratio: 1 / 1.15; min-width: 0; overflow: hidden; background: var(--cell); border: 1px solid var(--line); border-radius: 6px; }
+  .fill { position: absolute; left: 0; right: 0; top: 0; height: 0; background: var(--fill); }
+  .num { position: absolute; top: 4px; left: 5px; z-index: 3; font-family: var(--font-data); font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .mon { position: absolute; top: 5px; right: 4px; z-index: 3; font-family: var(--font-data); font-size: 8px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .cell.blank { background: none; border-color: transparent; }
+  .cell.today { border: 2px solid var(--accent); }
+
+  .cell.x .fill { display: none; }
+  .cell.x::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 6px); }
+  .cell.x::after {
+    content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    background:
+      linear-gradient(to top right, transparent calc(50% - 1px), var(--x) calc(50% - 1px), var(--x) calc(50% + 1px), transparent calc(50% + 1px)),
+      linear-gradient(to bottom right, transparent calc(50% - 1px), var(--x) calc(50% - 1px), var(--x) calc(50% + 1px), transparent calc(50% + 1px));
+  }
+
+  .hatch { position: absolute; left: 0; right: 0; z-index: 1;
+    background: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 6px); }
+  .hatch.hi { bottom: 0; border-top: 1.5px solid var(--accent); }
+  .hatch.band { border-top: 1.5px solid var(--accent); border-bottom: 1.5px solid var(--accent); }
+  .hatch.lo { top: 0; border-bottom: 1.5px solid var(--accent); }
+  .cut { position: absolute; right: 3px; z-index: 3; font-family: var(--font-data); font-size: 8px; font-weight: 500; color: var(--fg); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--line); background: var(--cell); position: relative; flex: none; }
+  .sw.f { background: var(--fill); }
+  .sw.x { background: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 5px); }
+  .sw.x::after { content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(to top right, transparent calc(50% - 1px), var(--x) calc(50% - 1px), var(--x) calc(50% + 1px), transparent calc(50% + 1px)),
+      linear-gradient(to bottom right, transparent calc(50% - 1px), var(--x) calc(50% - 1px), var(--x) calc(50% + 1px), transparent calc(50% + 1px)); }
+  .sw.h { background: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 5px); }
+
+  @media (max-width: 400px) {
+    h1 { font-size: 26px; }
+    .big { font-size: 48px; }
+    .num { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Possible Alone Time Left</h1>
+  </header>
+
+  <section>
+    <div class="live">
+      <div><b id="ld">0</b><span>days</span></div>
+      <div><b id="lh">0</b><span>hours</span></div>
+      <div><b id="lm">0</b><span>min</span></div>
+      <div><b id="ls">0</b><span>sec</span></div>
+    </div>
+    <p class="remain" id="remain">--% remaining</p>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:6px">
+    <div class="dow"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <div class="legend">
+    <span><i class="sw f"></i>Time passed</span>
+    <span><i class="sw x"></i>Not alone (Nov 21 to 27)</span>
+    <span><i class="sw h"></i>Unavailable hours (hatched)</span>
+  </div>
+</div>
+
+<script>
+(function () {
+  var H = 86400000;
+  // Grid starts on Sunday Oct 25 (left blank); counting starts Mon Oct 26 at 9:00 AM MST.
+  var DAY0 = Date.parse('2026-10-25T00:00:00-07:00');
+  var START = Date.parse('2026-10-26T09:00:00-07:00');
+  var END = Date.parse('2026-12-12T13:30:00-07:00');
+  // Top of each box = 12:01 AM, bottom = midnight.
+  var M1 = 60000, SPAN = H - M1;
+  var DAYS = 49, X_FROM = 27, X_TO = 33, LAST = 48, CUT = (13.5 * 3600000 - M1) / SPAN;
+  // Blocked hours inside a day (24-hour clock, MST), keyed by grid index: Nov 2, Nov 4, Nov 12.
+  var BLOCKS = { 8: [[11, 12]], 10: [[13, 15]], 18: [[13, 15]] };
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  var grid = document.getElementById('grid');
+  var cells = [];
+  var totalAlone = 0;
+
+  for (var i = 0; i < DAYS; i++) {
+    var dt = new Date(Date.UTC(2026, 9, 25 + i));
+    var day = dt.getUTCDate(), mon = dt.getUTCMonth();
+    var isX = i >= X_FROM && i <= X_TO;
+    var el = document.createElement('div');
+    if (i === 0) {
+      el.className = 'cell blank';
+      el.setAttribute('aria-hidden', 'true');
+      grid.appendChild(el);
+      continue;
+    }
+    el.className = 'cell' + (isX ? ' x' : '');
+    var label = WD[i % 7] + ' ' + MON[mon] + ' ' + day + (isX ? ', not alone' : '') + (i === LAST ? ', ends 1:30 PM MST' : '');
+    el.setAttribute('role', 'img');
+    el.setAttribute('aria-label', label);
+    el.title = label;
+
+    var fill = document.createElement('div');
+    fill.className = 'fill';
+    el.appendChild(fill);
+
+    var num = document.createElement('span');
+    num.className = 'num';
+    num.textContent = day;
+    el.appendChild(num);
+
+    if (day === 1 || i === 1) {
+      var m = document.createElement('span');
+      m.className = 'mon';
+      m.textContent = MON[mon];
+      el.appendChild(m);
+    }
+    var lo = 0;
+    if (i === 1) {
+      lo = (START - (DAY0 + H) - M1) / SPAN;
+      var hatchLo = document.createElement('div');
+      hatchLo.className = 'hatch lo';
+      hatchLo.style.height = (lo * 100) + '%';
+      el.appendChild(hatchLo);
+      var from = document.createElement('span');
+      from.className = 'cut';
+      from.textContent = '9:00a';
+      from.style.top = 'calc(' + (lo * 100) + '% + 2px)';
+      el.appendChild(from);
+    }
+    if (i === LAST) {
+      var hatch = document.createElement('div');
+      hatch.className = 'hatch hi';
+      hatch.style.height = ((1 - CUT) * 100) + '%';
+      el.appendChild(hatch);
+      var cut = document.createElement('span');
+      cut.className = 'cut';
+      cut.textContent = '1:30p';
+      cut.style.top = 'calc(' + (CUT * 100) + '% + 2px)';
+      el.appendChild(cut);
+    }
+    grid.appendChild(el);
+    var bands = [];
+    (BLOCKS[i] || []).forEach(function (b) {
+      var a = (b[0] * 3600000 - M1) / SPAN, z = (b[1] * 3600000 - M1) / SPAN;
+      bands.push([a, z]);
+      var band = document.createElement('div');
+      band.className = 'hatch band';
+      band.style.top = (a * 100) + '%';
+      band.style.height = ((z - a) * 100) + '%';
+      el.appendChild(band);
+    });
+
+    var hiF = i === LAST ? CUT : 1;
+    cells.push({ el: el, fill: fill, start: DAY0 + i * H, i: i, x: isX, lo: lo, hi: hiF, bands: bands });
+
+    // Days counted = the unhatched height of each counted box, in box-heights (1.0 = one full day).
+    if (!isX) {
+      totalAlone += hiF - lo;
+      bands.forEach(function (b) { totalAlone -= b[1] - b[0]; });
+    }
+  }
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function tick() {
+    var now = Date.now();
+    var left = 0;
+    cells.forEach(function (c) {
+      var frac = Math.max(0, Math.min(1, (now - c.start - M1) / SPAN));
+      if (c.i === LAST) frac = Math.min(frac, CUT);
+      c.fill.style.top = (c.lo * 100) + '%';
+      c.fill.style.height = (Math.max(0, frac - c.lo) * 100) + '%';
+      var isToday = now >= c.start && now < c.start + H;
+      c.el.classList.toggle('today', isToday);
+      if (!c.x) {
+        var cur = Math.max(frac, c.lo);
+        left += Math.max(0, c.hi - cur);
+        c.bands.forEach(function (b) { left -= Math.max(0, b[1] - Math.max(b[0], cur)); });
+      }
+    });
+    var pctLeft = totalAlone ? (left / totalAlone) * 100 : 0;
+    document.getElementById('remain').textContent = pctLeft.toFixed(1) + '% remaining';
+
+    var rem = Math.max(0, Math.floor(left * 86400));
+    document.getElementById('ld').textContent = Math.floor(rem / 86400);
+    document.getElementById('lh').textContent = Math.floor((rem % 86400) / 3600);
+    document.getElementById('lm').textContent = pad(Math.floor((rem % 3600) / 60));
+    document.getElementById('ls').textContent = pad(rem % 60);
+  }
+
+  tick();
+  setInterval(tick, 100);
+})();
+</script>
+
+</body>
+</html>
